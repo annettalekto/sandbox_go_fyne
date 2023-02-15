@@ -5,6 +5,7 @@
 **Диалоговые окна**
 
 - **Confirm** - диалоговое окно с выбором "Да/Нет".
+<img src="dialog/img/dialog_confirm.png" alt="screen"/>
   ![Confirm](./dialog/img/dialog_confirm.png)
 
 - **Custom** - диалоговое окно с возможностью добавить свой элемент CanvasObject (круг метку, цветной текст).
