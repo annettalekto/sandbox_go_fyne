@@ -17,7 +17,7 @@
 <img src="dialog/img/dialog_information.PNG" alt="screen"/>
 
 
-В диалоговые окна GO Fyne переименновать кнопки по русски (изменить стандартное ok на любое другое значение) можно через методы **SetDismissText** и **SetConfirmText** (если нет этого поля при создании диалога).
+В диалоговых окнах GO Fyne изменить название кнопок (стандартное ok) на любое другое значение можно через методы **SetDismissText** и **SetConfirmText** (если нет этого поля при создании диалога).
 
 моя папка: [sandbox_go_fyne/dialog at main · annettalekto/sandbox_go_fyne · GitHub](https://github.com/annettalekto/sandbox_go_fyne/tree/main/dialog)
 
