@@ -2,20 +2,31 @@
 
 Часто используемые элементы Fyne. 
 
+### Меню
+
+После создания меню, автоматически добавляется подменю "Quit", которое постоянно приходится переименовывать.
+
+<img src="menu/img/menu.PNG" alt="screen"/>
+
+https://github.com/annettalekto/sandbox_go_fyne/tree/main/menu
+
 ### Диалоговые окна
 
 - **Confirm** - диалоговое окно с выбором "Да/Нет".
-<img src="dialog/img/dialog_confirm.PNG" alt="screen"/>
+  
+  <img src="dialog/img/dialog_confirm.PNG" alt="screen"/>
 
 - **Custom** - диалоговое окно с возможностью добавить свой элемент CanvasObject (круг метку, цветной текст).
-<img src="dialog/img/dialog_custom.PNG" alt="screen"/>
+  
+  <img src="dialog/img/dialog_custom.PNG" alt="screen"/>
 
 - **Form** - позволяет добавить свой widget (даже несколько) в диалоговое окно. Можно использовать подсказку (поле hint), но работает она совсем не так как ожидалось (просто текст ниже widget).
-<img src="dialog/img/dialog_formitem.PNG" alt="screen"/>
+  
+  <img src="dialog/img/dialog_formitem.PNG" alt="screen"/>
 
 - **Information** - обычное окно с информацией и кнопкой.
-<img src="dialog/img/dialog_information.PNG" alt="screen"/>
-
+  
+  <img src="dialog/img/dialog_information.PNG" alt="screen"/>
 
 В диалоговых окнах GO Fyne изменить название кнопок (стандартное ok) на любое другое значение можно через методы **SetDismissText** и **SetConfirmText** (если нет этого поля при создании диалога).
 
