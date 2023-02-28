@@ -8,13 +8,13 @@
 
 <img src="menu/img/menu.png" alt="screen"/>
 
-https://github.com/annettalekto/sandbox_go_fyne/tree/main/menu
+[my menu example](https://github.com/annettalekto/sandbox_go_fyne/tree/main/menu)
 
 ### Entry – окно ввода
 
 <img src="entry/img/entry.png" alt="screen"/>
 
-[[sandbox_go_fyne/entry at main · annettalekto/sandbox_go_fyne · GitHub](https://github.com/annettalekto/sandbox_go_fyne/tree/main/entry)](https://github.com/annettalekto/sandbox_go_fyne/tree/main/entry)
+[my entry example](https://github.com/annettalekto/sandbox_go_fyne/tree/main/entry)
 
 Полезное свойство Entry – **Wrapping**. При создании элемента Wrapping = TextTruncate, он самы адекватный для однострочного виджета, так что можно вообще ничего не прописывать. Но есть еще парочка.
 
@@ -58,6 +58,6 @@ https://github.com/annettalekto/sandbox_go_fyne/tree/main/menu
 
 В диалоговых окнах GO Fyne изменить название кнопок (стандартное ok) на любое другое значение можно через методы **SetDismissText** и **SetConfirmText** (если нет этого поля при создании диалога).
 
-мои примеры: [sandbox_go_fyne/dialog at main · annettalekto/sandbox_go_fyne · GitHub](https://github.com/annettalekto/sandbox_go_fyne/tree/main/dialog)
+мои примеры: [my dialog example](https://github.com/annettalekto/sandbox_go_fyne/tree/main/dialog)
 
 нормальное описание: [Dialog List | Develop using Fyne](https://developer.fyne.io/explore/dialogs)
