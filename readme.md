@@ -61,3 +61,35 @@
 мои примеры: [my dialog example](https://github.com/annettalekto/sandbox_go_fyne/tree/main/dialog)
 
 нормальное описание: [Dialog List | Develop using Fyne](https://developer.fyne.io/explore/dialogs)
+
+### Связь объекта с переменной (bindable value)
+
+Иногда, если состояние объекта зависит только от одной переменной, удобно привязать объект к этой переменной. При изменении переменной объект будет изменятся автоматически (bindable value доступны от версии Fyne 2.0).
+
+Описание [bindable value](https://developer.fyne.io/binding/).
+
+Например, если виджет label отображает только одну строковую переменную (которая изменяется где-то в других местах проги), можно привязать строку к виджету. Переменная должна быть специально типа bindable string:
+
+```go
+boundString := binding.NewString()
+```
+
+ привязать можно:
+
+- при создании объекта используюя функцию New...**WithData()**.
+  
+  ```go
+  label := widget.NewLabelWithData(boundString)
+  ```
+
+- с помощью метода **Bind()**, если label cоздан как обычно.
+  
+  ```go
+  label.Bind(boundString)  
+  ```
+
+предусмотрены методы связать **Bind(str)** и отвязать **Unbind()**. 
+
+Теперь любое изменение переменной автоматически отобразится в label. Не нужно дополнительно передавать строку в виджет label.SetText(), делать обновление label.Refresh(), можно даже не хранить ссылку на объект. Для взаимодействия с переменной предусмотрены методы str.**Set()**, str.**Get()** и str.**Reload()**.
+
+Мой пример: 
