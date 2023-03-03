@@ -24,7 +24,13 @@ func main() {
 	// in2.Wrapping = fyne.TextWrapBreak // перенос того что неуместилось на другую строку - прям по стредине слова (горизонтальной полосы прокрутки нет)
 	in2.Wrapping = fyne.TextWrapWord // самый удобный для редактора: перенос по словам (горизонтальной полосы прокрутки нет)
 
-	box := container.NewVBox(in1, in2)
+	// расширение возможностей базового типа
+	// ввод только цифор
+	in3 := newNumericalEntry()
+
+	box := container.NewVBox(widget.NewLabel("Однострочный:"), in1,
+		widget.NewLabel("Многострочный: "), in2,
+		widget.NewLabel("Только цифры: "), in3)
 
 	w.SetContent(box)
 	w.ShowAndRun()
