@@ -38,6 +38,29 @@
 
 - TextWrapWord  –  тоже с переносом на новую строку, но по словам, не обывая на полуслове. Самый удобный вариант для редактора. Вертикальная полоса прокрутки есть.
 
+### Расширение базового типа
+
+Стандартные виджеты обеспечивают минимальную функциональность. предпологается расширение базового типа для дополнения его нужными функциями, используется Type Embedding.
+
+Создаём "свой" тип:
+
+```go
+type numericalEntry struct {
+	widget.Entry
+}
+
+// создаем функцию конструктор на основе базового типа 
+func newNumericalEntry() *numericalEntry {
+	entry := &numericalEntry{}
+	entry.ExtendBaseWidget(entry)
+	return entry
+}
+```
+
+И переопределяем стандартные методы.
+
+[my entry example](https://github.com/annettalekto/sandbox_go_fyne/tree/main/entry)
+
 ### Диалоговые окна
 
 - **Confirm** – диалоговое окно с выбором "Да/Нет".
