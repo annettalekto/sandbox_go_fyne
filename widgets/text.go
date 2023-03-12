@@ -13,7 +13,7 @@ import (
 func LabelWidgetsForm() {
 	w := fyne.CurrentApp().NewWindow("Fyne Label")
 	w.CenterOnScreen()
-	w.Resize(fyne.NewSize(600, 400))
+	w.Resize(fyne.NewSize(800, 600))
 
 	// варианты label
 	// NewLabelWithData
@@ -41,21 +41,33 @@ func LabelWidgetsForm() {
 
 	red := color.NRGBA{R: 255, G: 0, B: 0, A: 255}
 	t1 := canvas.NewText(getStringColor(red), red)
+	t1.TextSize = 16
+	t1.TextStyle.Bold = true
 
 	orange := color.NRGBA{R: 255, G: 50, B: 20, A: 255}
 	t2 := canvas.NewText(getStringColor(orange), orange)
+	t2.TextSize = 18
+	t2.TextStyle.Italic = true
 
 	jellow := color.NRGBA{R: 255, G: 230, B: 5, A: 255}
 	t3 := canvas.NewText(getStringColor(jellow), jellow)
+	t3.TextSize = 20
+	t3.TextStyle.Monospace = true
 
 	green := color.NRGBA{R: 0, G: 255, B: 0, A: 255}
 	t4 := canvas.NewText(getStringColor(green), green)
+	t4.TextSize = 22
+	t4.TextStyle.Symbol = true
 
 	blue := color.NRGBA{R: 0, G: 0, B: 255, A: 255}
 	t5 := canvas.NewText(getStringColor(blue), blue)
+	t5.TextSize = 24
+	t5.TextStyle.TabWidth = 4
 
 	purple := color.NRGBA{R: 184, G: 15, B: 200, A: 255}
 	t6 := canvas.NewText(getStringColor(purple), purple)
+	t6.TextSize = 26
+	t6.TextStyle.TabWidth = 8
 
 	labelBox := container.NewVBox(l1, l2, l3, l4, l5, l6, t1, t2, t3, t4, t5, t6)
 
