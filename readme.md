@@ -42,9 +42,9 @@
 
 ### Расширение базового типа
 
-Стандартные виджеты обеспечивают минимальную функциональность, предполагается расширение базового типа для дополнения его нужными функциями. 
+Стандартные виджеты обеспечивают минимальную функциональность, предполагается расширение базового типа для добавления ему нужных свойств. 
 
-За основу берется виджет widget.BaseWidget и с помощью ExtendBaseWidget получаем доступ к его полям.
+За основу берется виджет `widget.BaseWidget` и с помощью `ExtendBaseWidget` получаем доступ к его полям.
 
 ```go
 type numericalEntry struct {
@@ -63,8 +63,9 @@ func newNumericalEntry() *numericalEntry {
 
 [my entry example](https://github.com/annettalekto/sandbox_go_fyne/tree/main/entry)
 
-Полное описание: 
+Полное описание 
 [Extending Widgets](https://developer.fyne.io/extend/extending-widgets)
+Полное описание
 [Numerical-entry](https://developer.fyne.io/extend/numerical-entry)
 
 ### Диалоговые окна
@@ -73,7 +74,7 @@ func newNumericalEntry() *numericalEntry {
   
   <img src="dialog/img/dialog_confirm.PNG" alt="screen"/>
 
-- **Custom** – диалоговое окно с возможностью добавить свой элемент CanvasObject (круг метку, цветной текст).
+- **Custom** – диалоговое окно с возможностью добавить свой элемент `CanvasObject` (круг метку, цветной текст).
   
   <img src="dialog/img/dialog_custom.PNG" alt="screen"/>
 
@@ -111,7 +112,7 @@ boundString := binding.NewString()
   label := widget.NewLabelWithData(boundString)
   ```
 
-- с помощью метода **Bind()**, если label cоздан как обычно.
+- с помощью метода **Bind()**, если label создан как обычно.
   
   ```go
   label.Bind(boundString)  
@@ -122,3 +123,40 @@ boundString := binding.NewString()
 Теперь любое изменение переменной автоматически отобразится в label. Не нужно дополнительно передавать строку в виджет label.SetText(), делать обновление label.Refresh(), можно даже не хранить ссылку на объект. Для взаимодействия с переменной предусмотрены методы str.**Set()**, str.**Get()** и str.**Reload()**.
 
 Мой пример: [bindable value example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/bind/main.go)
+
+### ProgressBar
+
+Индикатор выполнения создается буквально в две строки:
+
+```go
+    pb1 := widget.NewProgressBar()
+    // pb1.Min = 0 (default 0.0)
+    // pb1.Max = 10 (default 1.0)
+    pb1.Value = 0.5
+```
+
+Индикатор заполняется от значения **Min** до **Max** (0 --- 1.0 по умолчанию) на значение **Value**, которое и нужно постепенно менять. Все значения доступны к изменению в любой момент после создания индикатора. Но лучше добавлять обновление после изменения границ `pb.Refresh()`).
+
+![image](widgets\img\progress_bar.gif)
+
+Если значение **Max** зависит от динамически изменяющихся этапов и в какой-то момент их становиться 0, то **Max** = 0 и **Value**=0 приводят к неверному отображению процента на индикаторе. Можно **Max** установить как число больше 0 (например 0.1), а значение **Value** = 0, то ошибки не будет. Но когда задачи появятся и значение **Max** снова будет больше 0, например 5, и значение **Value**, например, прибавиться на 2 (+ 2 выполненные задачи), то индикатор покажет значение процента на 2.1 из 5. Для того чтобы 0.1 не отображалось можно установить **Min** = 1, теперь каждый шаг индикатора не менее 1.
+
+```go
+done := binding.NewFloat()
+done.Set(0.1)
+pb2 := widget.NewProgressBarWithData(done)
+pb2.Max = 0.1
+```
+
+Можно создать индикатор отображение сразу связанный с переменной binding float, Тогда изменять нужно только эту переменную для заполнения индикатора, поле **Value** вообще не нужно трогать. 
+
+Можно создать **Infinite** индикатор отображения. Это отдельный индикатор, а не свойство основного. Небольшая полоска бесконечно двигается с права на лево по индикатору. Зачем это нужно я не знаю.
+
+```go
+pb21 := widget.NewProgressBarInfinite()
+```
+
+[my_progressbar_example](https://github.com/annettalekto/sandbox_go_fyne/tree/main/widgets)
+
+Полное описание
+[ProgressBar](https://developer.fyne.io/widget/progressbar)
