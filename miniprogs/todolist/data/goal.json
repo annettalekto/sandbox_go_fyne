@@ -1,8 +1,32 @@
 [
 	{
 		"Name": "Донован и Керниган",
-		"Description": "Множественные функции",
+		"Description": "пройти без подробной остановки на примерах и задачах",
 		"Max": 436,
 		"Value": 159
+	},
+	{
+		"Name": "Inside the mashine",
+		"Description": "",
+		"Max": 320,
+		"Value": 54
+	},
+	{
+		"Name": "Eng",
+		"Description": "Основные времена и правила выписать и структурировать, %",
+		"Max": 100,
+		"Value": 10
+	},
+	{
+		"Name": "Статья",
+		"Description": "",
+		"Max": 10,
+		"Value": 0
+	},
+	{
+		"Name": "ztk",
+		"Description": "до осн. функций",
+		"Max": 100,
+		"Value": 0
 	}
 ]
