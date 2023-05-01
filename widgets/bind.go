@@ -9,7 +9,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func BindWidgets() {
+func BindForm() {
 	w := fyne.CurrentApp().NewWindow("Bind widgets")
 	w.Resize(fyne.NewSize(200, 200))
 
