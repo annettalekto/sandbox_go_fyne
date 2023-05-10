@@ -28,8 +28,8 @@ func main() {
 	)
 
 	l1 := widget.NewLabel("widget.NewList: список виджетов")
-	dataForList := []string{LabelWidgets, MenuWidgets, DialogWidgets,
-		EntryWidgets, BindWidgets, ProgressBar, SelectWidgets, ButtonWidgets}
+	dataForList := []string{LabelWidgets, MenuWidgets, DialogWidgets, EntryWidgets,
+		BindWidgets, ProgressBar, SelectWidgets, ButtonWidgets}
 
 	list := widget.NewList(
 		func() int {
@@ -59,6 +59,10 @@ func main() {
 		// ввод или вывод данных в поля
 		if wt == EntryWidgets {
 			EntryForm()
+		}
+
+		if wt == ButtonWidgets {
+			ButtonForm()
 		}
 
 		if wt == MenuWidgets {
