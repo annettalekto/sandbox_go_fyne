@@ -11,6 +11,7 @@ import (
 func EntryForm() {
 	w := fyne.CurrentApp().NewWindow("Entry")
 	w.Resize(fyne.NewSize(400, 200))
+	w.CenterOnScreen()
 
 	in1 := widget.NewEntry() // при создании элемента Wrapping = TextTruncate, он самы адекватный, так что можно вообще не прописывать
 	// in1.Wrapping = fyne.TextTruncate // появляется полоса прокрутки при заполнении больше ширины виджита

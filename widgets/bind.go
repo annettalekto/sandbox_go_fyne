@@ -12,6 +12,7 @@ import (
 func BindForm() {
 	w := fyne.CurrentApp().NewWindow("Bind widgets")
 	w.Resize(fyne.NewSize(200, 200))
+	w.CenterOnScreen()
 
 	// чекбокс + bool
 	sw := binding.NewBool()                                                 // создана переменная типа binding bool

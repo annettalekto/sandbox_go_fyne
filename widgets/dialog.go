@@ -17,9 +17,9 @@ import (
 */
 
 func DialogForm() {
-
 	w := fyne.CurrentApp().NewWindow("Dialogs")
 	w.Resize(fyne.NewSize(300, 300))
+	w.CenterOnScreen()
 
 	out := widget.NewLabel("")
 
@@ -34,7 +34,11 @@ func DialogForm() {
 		out.Refresh()
 		d := dialog.NewForm("Dialog FormItem", "Хорошо", "Ну уж нет", items, func(ok bool) {
 			if ok {
-				out.SetText("Привет, " + input.Text + "!")
+				if len(input.Text) == 0 {
+					out.SetText("Ну и не надо...")
+				} else {
+					out.SetText("Привет, " + input.Text + "!")
+				}
 			} else {
 				out.SetText("Ну и ладно...")
 			}

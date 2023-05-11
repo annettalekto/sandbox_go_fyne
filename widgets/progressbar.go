@@ -8,7 +8,6 @@ import (
 )
 
 func ProgressBarForm() {
-
 	w := fyne.CurrentApp().NewWindow("ProgressBar")
 	w.Resize(fyne.NewSize(400, 200))
 	w.SetFixedSize(true)

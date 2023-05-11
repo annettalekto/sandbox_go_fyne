@@ -12,6 +12,7 @@ import (
 func MenuForm() {
 	w := fyne.CurrentApp().NewWindow("Menu")
 	w.Resize(fyne.NewSize(400, 300))
+	w.CenterOnScreen()
 
 	menu := fyne.NewMainMenu(
 		fyne.NewMenu("Файл",

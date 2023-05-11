@@ -12,8 +12,8 @@ import (
 
 func LabelWidgetsForm() {
 	w := fyne.CurrentApp().NewWindow("Fyne Label")
-	w.CenterOnScreen()
 	w.Resize(fyne.NewSize(800, 600))
+	w.CenterOnScreen()
 
 	// варианты label
 	// NewLabelWithData
