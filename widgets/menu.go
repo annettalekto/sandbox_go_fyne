@@ -46,13 +46,21 @@ func MenuForm() {
 
 var currentTheme bool // читать/сохранять из файла
 
+// type forcedVariant struct {
+// 	fyne.Theme
+
+// 	variant fyne.ThemeVariant
+// }
+
 func changeTheme(a fyne.App) {
 	currentTheme = !currentTheme
 
 	if currentTheme {
-		a.Settings().SetTheme(theme.DarkTheme())
+		// a.Settings().SetTheme(theme.DarkTheme())
+		a.Settings().SetTheme(&forcedVariant{Theme: theme.DefaultTheme(), variant: theme.VariantDark})
 	} else {
-		a.Settings().SetTheme(theme.LightTheme())
+		// a.Settings().SetTheme(theme.LightTheme())
+		a.Settings().SetTheme(&forcedVariant{Theme: theme.DefaultTheme(), variant: theme.VariantLight})
 	}
 }
 
