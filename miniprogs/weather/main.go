@@ -83,7 +83,7 @@ func GetData(ch chan string) {
 					d := strings.ReplaceAll(s, "\"", "")
 					d = strings.TrimLeft(d, "<div class=weather-now-temp>")
 					d = strings.TrimRight(d, "&deg;</div>")
-					mydata.Temperature = d + "°"
+					mydata.Temperature = d
 				} else if mydata.Wind == "" && strings.Contains(s, "<span class=\"wind-amount\">") { // <span class="wind-amount">Северо-восточный, 1 м/с</span>
 					d := strings.ReplaceAll(s, "\"", "")
 					d = strings.TrimLeft(d, "<span class=wind-amount>")
@@ -95,7 +95,7 @@ func GetData(ch chan string) {
 						d = strings.ReplaceAll(d, "\"", "")
 						d = strings.TrimLeft(d, "<span class=value>")
 						d = strings.TrimRight(d, "<&deg;/span>")
-						mydata.FeelsLike = "" + d + "°"
+						mydata.FeelsLike = d
 					}
 				}
 			}
@@ -147,15 +147,14 @@ func CreateForm(ch chan string) {
 				labelCity.Text = mydata.City + " " + mydata.Date
 				labelCity.Refresh()
 			}
-			if len(labelFeels.Text) < 2 {
-				labelFeels.Text = "По ощущению " + mydata.FeelsLike
-				labelFeels.Refresh()
-			}
-			if len(labelWind.Text) < 2 {
-				labelWind.Text = mydata.Wind
-				labelWind.Refresh()
-			}
-			labelWhether.Text = t
+
+			labelFeels.Text = "По ощущению " + mydata.FeelsLike + "°"
+			labelFeels.Refresh()
+
+			labelWind.Text = mydata.Wind
+			labelWind.Refresh()
+
+			labelWhether.Text = t + "°"
 			labelWhether.Refresh()
 		}
 	}()
