@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
@@ -18,7 +20,10 @@ func InputForm() {
 	})
 	selectEntry.PlaceHolder = "выбрать"
 
-	w.SetContent(container.NewVBox(selectEntry))
+	checkGroup := widget.NewCheckGroup([]string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, func(s []string) { fmt.Println("выбор", s) })
+	checkGroup.Horizontal = true
+
+	w.SetContent(container.NewVBox(selectEntry, checkGroup))
 
 	w.Show()
 }
