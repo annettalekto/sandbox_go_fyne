@@ -18,18 +18,18 @@ func main() {
 
 	var (
 		LabelWidgets  = "Текст"
-		EntryWidgets  = "Ввод"
+		EntryWidgets  = "Поле ввода"
 		DialogWidgets = "Диалоги"
 		MenuWidgets   = "Меню"
 		BindWidgets   = "Связные"
 		ProgressBar   = "ProgressBar"
 		ButtonWidgets = "Кнопки"
-		InputWidgets  = "Выбор"
+		InputWidgets  = "Ввод"
 	)
 
 	l1 := widget.NewLabel("widget.NewList: список виджетов")
-	dataForList := []string{LabelWidgets, MenuWidgets, DialogWidgets, EntryWidgets,
-		BindWidgets, ProgressBar, InputWidgets, ButtonWidgets}
+	dataForList := []string{MenuWidgets, LabelWidgets, EntryWidgets, InputWidgets,
+		ButtonWidgets, BindWidgets, ProgressBar, DialogWidgets}
 
 	list := widget.NewList(
 		func() int {
