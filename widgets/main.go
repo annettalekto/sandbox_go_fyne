@@ -25,11 +25,13 @@ func main() {
 		ProgressBar   = "ProgressBar"
 		ButtonWidgets = "Кнопки"
 		InputWidgets  = "Ввод"
+		Tab           = "Табы"
 	)
 
 	l1 := widget.NewLabel("widget.NewList: список виджетов")
 	dataForList := []string{MenuWidgets, LabelWidgets, EntryWidgets, InputWidgets,
-		ButtonWidgets, BindWidgets, ProgressBar, DialogWidgets}
+		ButtonWidgets, BindWidgets, ProgressBar, DialogWidgets,
+		Tab}
 
 	list := widget.NewList(
 		func() int {
@@ -85,6 +87,11 @@ func main() {
 
 		if wt == ProgressBar {
 			ProgressBarForm()
+		}
+
+		// Таб - вкладка открывает новое окно
+		if wt == Tab {
+			TabForm()
 		}
 	}
 
