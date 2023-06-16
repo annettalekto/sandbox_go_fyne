@@ -17,6 +17,7 @@ func main() {
 	w.SetMaster()
 
 	var (
+		NewWindows    = "Новая форма"
 		LabelWidgets  = "Текст"
 		EntryWidgets  = "Поле ввода"
 		DialogWidgets = "Диалоги"
@@ -29,7 +30,7 @@ func main() {
 	)
 
 	l1 := widget.NewLabel("widget.NewList: список виджетов")
-	dataForList := []string{MenuWidgets, LabelWidgets, EntryWidgets, InputWidgets,
+	dataForList := []string{NewWindows, MenuWidgets, LabelWidgets, EntryWidgets, InputWidgets,
 		ButtonWidgets, BindWidgets, ProgressBar, DialogWidgets,
 		Tab}
 
@@ -52,6 +53,10 @@ func main() {
 	list.OnSelected = func(id widget.ListItemID) {
 		wt := dataForList[id]
 		l1.SetText(fmt.Sprintf("Выбран элемент «%s»", wt))
+
+		if wt == NewWindows {
+			newWindow()
+		}
 
 		// текст, разный шрифт и цвет
 		if wt == LabelWidgets {
