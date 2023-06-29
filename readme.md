@@ -72,19 +72,19 @@ func newNumericalEntry() *numericalEntry {
 
 - **Confirm** – диалоговое окно с выбором "Да/Нет".
   
-  <img src="widgets/img/dialog_confirm.PNG" alt="screen"/>
+  <img src="widgets/img/dialog_confirm.png" alt="screen"/>
 
 - **Custom** – диалоговое окно с возможностью добавить свой элемент `CanvasObject` (круг метку, цветной текст).
   
-  <img src="widgets/img/dialog_custom.PNG" alt="screen"/>
+  <img src="widgets/img/dialog_custom.png" alt="screen"/>
 
 - **Form** – позволяет добавить свой widget (даже несколько) в диалоговое окно. Можно использовать подсказку (поле hint), но работает она совсем не так как ожидалось (просто текст ниже widget).
   
-  <img src="widgets/img/dialog_formitem.PNG" alt="screen"/>
+  <img src="widgets/img/dialog_formitem.png" alt="screen"/>
 
 - **Information** – обычное окно с информацией и кнопкой.
   
-  <img src="widgets/img/dialog_information.PNG" alt="screen"/>
+  <img src="widgets/img/dialog_information.png" alt="screen"/>
 
 В диалоговых окнах GO Fyne изменить название кнопок (стандартное ok) на любое другое значение можно через методы **SetDismissText** и **SetConfirmText** (если нет этого поля при создании диалога).
 
@@ -122,7 +122,7 @@ boundString := binding.NewString()
 
 Теперь любое изменение переменной автоматически отобразится в label. Не нужно дополнительно передавать строку в виджет label.SetText(), делать обновление label.Refresh(), можно даже не хранить ссылку на объект. Для взаимодействия с переменной предусмотрены методы str.**Set()**, str.**Get()** и str.**Reload()**.
 
-Мой пример: [bindable value example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/bind/main.go)
+Мой пример: [bindable value example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/widgets/bind.go)
 
 ### ProgressBar
 
@@ -156,7 +156,7 @@ pb2.Max = 0.1
 pb21 := widget.NewProgressBarInfinite()
 ```
 
-[my_progressbar_example](https://github.com/annettalekto/sandbox_go_fyne/tree/main/widgets)
+[my_progressbar_example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/widgets/progressbar.go)
 
 Полное описание
 [ProgressBar](https://developer.fyne.io/widget/progressbar)
