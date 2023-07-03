@@ -1,6 +1,8 @@
 ## Заметки по GO Fyne
 
-Часто используемые элементы Fyne, особенности перевода на русский, разница в похожих свойствах.
+* Часто используемые элементы Fyne.
+* Особенности перевода на русский.
+* Разница в похожих свойствах.
 
 ### Меню
 
@@ -8,13 +10,13 @@
 
 <img src="widgets/img/menu.png" alt="screen"/>
 
-[my menu example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/widgets/menu.go)
+Мой пример: [my menu example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/widgets/menu.go).
 
 ### Entry – поле ввода
 
 <img src="widgets/img/entry.png" alt="screen"/>
 
-[my entry example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/widgets/entry.go)
+Мой пример: [my entry example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/widgets/entry.go).
 
 Полезное свойство Entry – **Wrapping**. При создании элемента `Wrapping = TextTruncate`, это самый адекватный вариант для однострочного виджета, так что можно вообще ничего не прописывать. 
 
@@ -63,9 +65,10 @@ func newNumericalEntry() *numericalEntry {
 
 Теперь можем внести дополнения к стандартным методам.
 
-Полное описание 
+Полное описание: 
 [Extending Widgets](https://developer.fyne.io/extend/extending-widgets).
-Полное описание
+
+Полное описание:
 [Numerical-entry](https://developer.fyne.io/extend/numerical-entry).
 
 ### Диалоговые окна
@@ -88,15 +91,15 @@ func newNumericalEntry() *numericalEntry {
 
 В диалоговых окнах GO Fyne изменить название кнопок (стандартное ok) на любое другое значение можно через методы **SetDismissText** и **SetConfirmText** (если нет этого поля при создании диалога).
 
-мои примеры: [my dialog example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/widgets/dialog.go)
+Мои примеры: [my dialog example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/widgets/dialog.go).
 
-нормальное описание: [Dialog List | Develop using Fyne](https://developer.fyne.io/explore/dialogs)
+Рормальное описание: [Dialog List | Develop using Fyne](https://developer.fyne.io/explore/dialogs).
 
 ### Связь объекта с переменной (bindable value)
 
 Иногда, если состояние объекта зависит только от одной переменной, удобно привязать объект к этой переменной. При изменении переменной объект будет изменятся автоматически (bindable value доступны от версии Fyne 2.0).
 
-Описание [fyne: bindable value](https://developer.fyne.io/binding/).
+Описание: [fyne: bindable value](https://developer.fyne.io/binding/).
 
 Например, если виджет label отображает только одну строковую переменную (которая изменяется где-то в других местах проги), можно привязать строку к виджету. Переменная должна быть специально типа bindable string:
 
@@ -122,7 +125,7 @@ boundString := binding.NewString()
 
 Теперь любое изменение переменной автоматически отобразится в label. Не нужно дополнительно передавать строку в виджет label.SetText(), делать обновление label.Refresh(), можно даже не хранить ссылку на объект. Для взаимодействия с переменной предусмотрены методы str.**Set()**, str.**Get()** и str.**Reload()**.
 
-Мой пример: [bindable value example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/widgets/bind.go)
+Мой пример: [bindable value example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/widgets/bind.go).
 
 ### ProgressBar
 
@@ -156,7 +159,5 @@ pb2.Max = 0.1
 pb21 := widget.NewProgressBarInfinite()
 ```
 
-[my_progressbar_example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/widgets/progressbar.go)
-
-Полное описание
-[ProgressBar](https://developer.fyne.io/widget/progressbar)
+Мой пример: [my progressbar example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/widgets/progressbar.go).
+Полное описание: [ProgressBar](https://developer.fyne.io/widget/progressbar).
