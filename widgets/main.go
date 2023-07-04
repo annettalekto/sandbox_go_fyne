@@ -23,13 +23,13 @@ func main() {
 		MenuWidgets   = "Меню"
 		BindWidgets   = "Связные"
 		ProgressBar   = "ProgressBar"
-		ButtonWidgets = "Кнопки" // todo:
-		SelectWidgets = "Выбор"  // todo:
+		ButtonWidgets = "Кнопки"
+		InputWidgets  = "Выбор"
 	)
 
 	l1 := widget.NewLabel("widget.NewList: список виджетов")
 	dataForList := []string{LabelWidgets, MenuWidgets, DialogWidgets, EntryWidgets,
-		BindWidgets, ProgressBar, SelectWidgets, ButtonWidgets}
+		BindWidgets, ProgressBar, InputWidgets, ButtonWidgets}
 
 	list := widget.NewList(
 		func() int {
@@ -63,6 +63,10 @@ func main() {
 
 		if wt == ButtonWidgets {
 			ButtonForm()
+		}
+
+		if wt == InputWidgets {
+			InputForm()
 		}
 
 		if wt == MenuWidgets {
