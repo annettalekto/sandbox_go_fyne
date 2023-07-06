@@ -4,7 +4,7 @@
 * Особенности перевода на русский.
 * Разница в похожих свойствах.
 
-### Меню
+### Меню 
 
 После создания меню, автоматически добавляется подменю "Quit", которое постоянно приходится переименовывать в "Выход" (если прога на русском языке).
 
@@ -42,7 +42,33 @@
 
 - `TextWrapWord`  –  тоже с переносом на новую строку, но по словам, не обрывая на полуслове. Самый удобный вариант для редактора. Вертикальная полоса прокрутки есть.
 
-**Entry.TextStyle**: **Bold**, *Italic*, `Monospace`, Symbol, TabWidth.
+Для многострочных так же можно указать сколько строк будет изначально **SetMinRowsVisible**:
+
+`eMylty.SetMinRowsVisible(5)`
+
+**Еще пара полей:**
+
+Можно немного поменять стиль:
+
+**Entry.TextStyle**: **Bold**, *Italic*, `Monospace`. А вот размер текста не устанавливается...
+
+Смотрим, что нам ввели в поле ввода:
+
+**Entry.OnChanged** — вызвывается на каждый введенный в поле ввода символ.
+
+**Entry.OnSubmitted** — вызывается когда ввели всю строку и нажали *Enter* для подтверждения (в многострочном MultyLineEntry по окончанию ввода *Shift + Enter*).
+
+```go
+// вызывается на каждый символ, но s - все введенное
+eMylty.OnChanged = func(s string) {
+	fmt.Println("OnChanged: " + s)
+}
+eMylty.OnSubmitted = func(s string) {
+	fmt.Println("OnSubmitted: " + s) // shift + enter
+}
+```
+
+Можно на нужный элемент установить курсор (или снять) **Entry.FocusGained()**, только я не знаю зачем, т.к. строка не вводится в этом элементе (хотя курсор стоит там, мигает) до тех пор, пока не ткнешь туды мышкой и только после этого строка вводится нормально.
 
 ### Расширение базового типа
 
@@ -65,11 +91,9 @@ func newNumericalEntry() *numericalEntry {
 
 Теперь можем внести дополнения к стандартным методам.
 
-Полное описание: 
-[Extending Widgets](https://developer.fyne.io/extend/extending-widgets).
+Полное описание:  [Extending Widgets](https://developer.fyne.io/extend/extending-widgets).
 
-Полное описание:
-[Numerical-entry](https://developer.fyne.io/extend/numerical-entry).
+Полное описание: [Numerical-entry](https://developer.fyne.io/extend/numerical-entry).
 
 ### Диалоговые окна
 
@@ -93,7 +117,7 @@ func newNumericalEntry() *numericalEntry {
 
 Мои примеры: [my dialog example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/widgets/dialog.go).
 
-Рормальное описание: [Dialog List | Develop using Fyne](https://developer.fyne.io/explore/dialogs).
+Нормальное описание: [Dialog List | Develop using Fyne](https://developer.fyne.io/explore/dialogs).
 
 ### Связь объекта с переменной (bindable value)
 
@@ -121,9 +145,9 @@ boundString := binding.NewString()
   label.Bind(boundString)  
   ```
 
-предусмотрены методы связать **Bind(str)** и отвязать **Unbind()**. 
+Предусмотрены методы связать **Bind(str)** и отвязать **Unbind()**. 
 
-Теперь любое изменение переменной автоматически отобразится в label. Не нужно дополнительно передавать строку в виджет label.SetText(), делать обновление label.Refresh(), можно даже не хранить ссылку на объект. Для взаимодействия с переменной предусмотрены методы str.**Set()**, str.**Get()** и str.**Reload()**.
+Теперь любое изменение переменной автоматически отобразится в `label`. Не нужно дополнительно передавать строку в виджет `label.SetText()`, делать обновление label.Refresh(), можно даже не хранить ссылку на объект. Для взаимодействия с переменной предусмотрены методы str.**Set()**, str.**Get()** и str.**Reload()**.
 
 Мой пример: [bindable value example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/widgets/bind.go).
 
@@ -160,4 +184,5 @@ pb21 := widget.NewProgressBarInfinite()
 ```
 
 Мой пример: [my progressbar example](https://github.com/annettalekto/sandbox_go_fyne/blob/main/widgets/progressbar.go).
+
 Полное описание: [ProgressBar](https://developer.fyne.io/widget/progressbar).

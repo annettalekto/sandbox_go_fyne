@@ -19,7 +19,7 @@ func main() {
 	var (
 		NewWindows    = "Новая форма"
 		LabelWidgets  = "Текст"
-		EntryWidgets  = "Поле ввода"
+		EntryWidgets  = "Поле ввода Entry"
 		DialogWidgets = "Диалоги"
 		MenuWidgets   = "Меню"
 		BindWidgets   = "Связные"
