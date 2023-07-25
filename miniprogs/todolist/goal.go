@@ -20,7 +20,8 @@ import (
 // goalType data
 type goalType struct {
 	Name, Description string
-	Max, Value        float64
+	Max, Value        float64             // todo: может быть дробным?
+	TextPB            *canvas.Text        `json:"-"`
 	ProgressBar       *widget.ProgressBar `json:"-"`
 	Box               *fyne.Container     `json:"-"`
 	// Notes             string              `json:",omitempty"`
@@ -39,9 +40,11 @@ func (g *goalType) Init(name, description string, max, value float64) {
 	g.Max = max
 	g.Value = value
 
-	text := canvas.NewText("     "+g.Name, color.Black) // без пробелов выходит за прогресс бар слева
-	text.TextStyle.Italic = true
-	textBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(0, 30)), text)
+	g.TextPB = canvas.NewText("Goal", color.Black)
+
+	g.TextPB.Text = fillOutPB(g.Name, g.Value, g.Max)
+	g.TextPB.TextStyle.Italic = true
+	textGoalsBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(0, 30)), g.TextPB)
 
 	g.ProgressBar = widget.NewProgressBar()
 	g.ProgressBar.Max = max
@@ -52,13 +55,20 @@ func (g *goalType) Init(name, description string, max, value float64) {
 		g.ProgressBar.Value++
 		g.Value = g.ProgressBar.Value // т.к. *widget.ProgressBar не сохраняется в файл
 		g.ProgressBar.Refresh()
+		g.TextPB.Text = fillOutPB(g.Name, g.Value, g.Max)
+		g.TextPB.Refresh()
 		writeGoalsIntoFile(Goals)
 	})
 	changeButton := widget.NewButton("  ...  ", func() {
 		g.ChangeGoalForm()
 	})
 	buttonBox := container.NewHBox(plusButton, changeButton)
-	g.Box = container.NewBorder(nil, nil, textBox, buttonBox, g.ProgressBar)
+	g.Box = container.NewBorder(nil, nil, textGoalsBox, buttonBox, g.ProgressBar)
+
+}
+
+func fillOutPB(name string, val, max float64) string {
+	return fmt.Sprintf("     %s (%.0f из %.0f)", name, val, max) // без пробелов выходит за прогресс бар слева
 }
 
 // // IncrementProgress прибавить прогресс
@@ -69,11 +79,11 @@ func (g *goalType) Init(name, description string, max, value float64) {
 // 	writeGoalsIntoFile(Goals)
 // }
 
-// ChangeGoalForm форма для изменения парамметров цели
+// ChangeGoalForm форма для изменения параметров цели
 func (g *goalType) ChangeGoalForm() {
 
 	w := fyne.CurrentApp().NewWindow("Изменить")
-	w.Resize(fyne.NewSize(400, 190))
+	w.Resize(fyne.NewSize(400, 230))
 	w.SetFixedSize(true)
 	w.CenterOnScreen()
 
@@ -81,7 +91,8 @@ func (g *goalType) ChangeGoalForm() {
 	name.TextSize = 16
 	name.TextStyle.Monospace = true
 	nameBox := container.NewHBox(layout.NewSpacer(), name, layout.NewSpacer())
-	descriptionEntry := widget.NewEntry()
+	descriptionEntry := widget.NewMultiLineEntry()
+	descriptionEntry.Wrapping = fyne.TextWrapWord
 	descriptionEntry.OnChanged = func(s string) {
 		g.Description = s
 		writeGoalsIntoFile(Goals)
@@ -99,10 +110,18 @@ func (g *goalType) ChangeGoalForm() {
 			g.ProgressBar.Value = float64(v)
 			g.Value = g.ProgressBar.Value
 			g.ProgressBar.Refresh()
+			g.TextPB.Text = fillOutPB(g.Name, g.Value, g.Max)
+			g.TextPB.Refresh()
 			writeGoalsIntoFile(Goals)
 		}
 	}
-	valueEntry.SetPlaceHolder(fmt.Sprintf("%v", g.ProgressBar.Value))
+	valueEntry.Entry.FocusGained() //курсор есть, но не вводит цифры, пока не ткнешь мышкой
+	valueEntry.Entry.OnSubmitted = func(s string) {
+		selectAll()
+		fmt.Println("onsubmitted")
+	}
+	valueEntry.SetText(fmt.Sprintf("%v", g.ProgressBar.Value))
+
 	boxValue := container.NewBorder(nil, nil, widget.NewLabel("Сделано: "),
 		widget.NewLabel(fmt.Sprintf("(из %v)", g.ProgressBar.Max)), valueEntry)
 
@@ -194,7 +213,7 @@ func goalForm() *fyne.Container {
 		writeGoalNotes(s)
 	}
 
-	// testButton := widget.NewButton("Записть файла", func() { // debug
+	// testButton := widget.NewButton("Запись файла", func() { // debug
 	// 	writeGoalsIntoFile(Goals)
 	// })
 	button := container.NewBorder(nil, nil, nil, addGoalButton)
