@@ -110,3 +110,6 @@ func main() {
 	w.SetContent(container.NewHSplit(list, box))
 	w.ShowAndRun()
 }
+
+// Icon
+//<a href="https://www.flaticon.com/free-icons/star" title="star icons">Star icons created by Smashicons - Flaticon</a>
