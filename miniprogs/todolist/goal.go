@@ -129,7 +129,6 @@ func (g *goalType) ChangeGoalForm() {
 		// сделать не активной пока не будет 100%?
 		// добавить файл завершенных проектов?
 		if g.Max != g.ProgressBar.Value {
-			//todo: запись в лог
 			msg := fmt.Sprintf("Завершение цели \"%s\"", g.Name)
 			d := dialog.NewConfirm(msg, "Прогресс не 100% Завершить?", func(ok bool) {
 				if ok {
@@ -137,6 +136,7 @@ func (g *goalType) ChangeGoalForm() {
 					Goals = removeGoals(Goals, g.Name)
 					GoalsBox.Remove(g.Box)
 					writeGoalsIntoFile(Goals)
+					writeHistoryFile("Done", g.Name, g.Description, g.Start, g.Value, g.Max)
 				}
 			}, w)
 			d.SetDismissText("Отмена") // todo: при отмене не откатывается набранное
@@ -145,7 +145,6 @@ func (g *goalType) ChangeGoalForm() {
 		}
 	})
 	deleteButton := widget.NewButton("Удалить", func() {
-		//todo: запись в лог
 		msg := fmt.Sprintf("Удаление цели \"%s\"", g.Name)
 		d := dialog.NewConfirm(msg, "Точно удалить?", func(ok bool) {
 			if ok {
@@ -153,9 +152,10 @@ func (g *goalType) ChangeGoalForm() {
 				Goals = removeGoals(Goals, g.Name)
 				GoalsBox.Remove(g.Box)
 				writeGoalsIntoFile(Goals)
+				writeHistoryFile("Delete", g.Name, g.Description, g.Start, g.Value, g.Max)
 			}
 		}, w)
-		d.SetDismissText("Отмена")
+		d.SetDismissText("Отмена") // todo: хм...
 		d.SetConfirmText("Да")
 		d.Show()
 	})
@@ -371,21 +371,11 @@ func writeGoalNotes(s string) error {
 }
 
 /*
-type goalType struct {
-	Name, Description string
-	Max, Value        float64             // todo: может быть дробным?
-	TextOnProgressBar *canvas.Text        `json:"-"`
-	ProgressBar       *widget.ProgressBar `json:"-"`
-	Box               *fyne.Container     `json:"-"`
-	Start             time.Time
-}*/
-
-/*
 Записи: создание, удаление, завершение
 */
 func writeHistoryFile(prefix, name, description string, t time.Time, val, max float64) error {
 	s := fmt.Sprintf("%v %v: %v :%v (max: %.0f, done: %.0f)", t.Format("02.01.2006 15:04:05"), prefix, name, description, max, val)
-	err := os.WriteFile(HistoryFile, []byte(s), 0777)
+	err := os.WriteFile(HistoryFile, []byte(s), 0777) // todo: Fatal нужна дозапись, а не перезаписть
 	if err != nil {
 		log.Fatal(err)
 	}
