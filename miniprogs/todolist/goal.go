@@ -34,6 +34,7 @@ var GoalsBox = container.NewVBox()
 
 var goalJSON string = "data\\goal.json"
 var GoalsNoteFile string = "data\\goal_notes.txt"
+var HistoryFile string = "data\\history.txt"
 
 // Init for goalType's progressBar
 func (g *goalType) Init(name, description string, max, value float64) {
@@ -42,6 +43,7 @@ func (g *goalType) Init(name, description string, max, value float64) {
 	g.Max = max
 	g.Value = value
 	g.Start = time.Now()
+	writeHistoryFile("Create", g.Name, g.Description, g.Start, g.Value, g.Max)
 
 	g.TextOnProgressBar = canvas.NewText("Goal", color.Black)
 	g.TextOnProgressBar.Text = fillOutProgressBar(g.Name, g.Value, g.Max)
@@ -249,7 +251,7 @@ func newGoalForm(goalsBox *fyne.Container) {
 	errorLabel := widget.NewLabel("...") // вывод ошибок
 
 	nameStr := "Название цели"
-	nameEntry := widget.NewEntry()
+	nameEntry := widget.NewEntry() //todo: можно так же проверять по нажатию enter
 	noteStr := "Примечание к цели"
 	descriptionEntry := widget.NewEntry()
 	maxValueStr := "Максимальноe число задач"
@@ -362,6 +364,28 @@ func readGoalNotes() (string, error) {
 
 func writeGoalNotes(s string) error {
 	err := os.WriteFile(GoalsNoteFile, []byte(s), 0777)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return err
+}
+
+/*
+type goalType struct {
+	Name, Description string
+	Max, Value        float64             // todo: может быть дробным?
+	TextOnProgressBar *canvas.Text        `json:"-"`
+	ProgressBar       *widget.ProgressBar `json:"-"`
+	Box               *fyne.Container     `json:"-"`
+	Start             time.Time
+}*/
+
+/*
+Записи: создание, удаление, завершение
+*/
+func writeHistoryFile(prefix, name, description string, t time.Time, val, max float64) error {
+	s := fmt.Sprintf("%v %v: %v :%v (max: %.0f, done: %.0f)", t.Format("02.01.2006 15:04:05"), prefix, name, description, max, val)
+	err := os.WriteFile(HistoryFile, []byte(s), 0777)
 	if err != nil {
 		log.Fatal(err)
 	}
