@@ -43,7 +43,7 @@ func (g *goalType) Init(name, description string, max, value float64) {
 	g.Max = max
 	g.Value = value
 	g.Start = time.Now()
-	writeHistoryFile("Create", g.Name, g.Description, g.Start, g.Value, g.Max)
+	writeHistoryFile("Create", g.Name, g.Description, g.Start, g.Value, g.Max) // todo: сохраняется по нескольку раз тк вызывается и при создании вновь и при загрузки
 
 	g.TextOnProgressBar = canvas.NewText("Goal", color.Black)
 	g.TextOnProgressBar.Text = fillOutProgressBar(g.Name, g.Value, g.Max)
@@ -56,11 +56,11 @@ func (g *goalType) Init(name, description string, max, value float64) {
 	g.ProgressBar.SetValue(value)
 
 	plusButton := widget.NewButton("  +  ", func() {
-		g.ProgressBar.Value++
-		g.Value = g.ProgressBar.Value // т.к. *widget.ProgressBar не сохраняется в файл
+		g.ProgressBar.Value++ // todo: это работает, но в Goals не попадает
 		g.ProgressBar.Refresh()
 		g.TextOnProgressBar.Text = fillOutProgressBar(g.Name, g.Value, g.Max)
 		g.TextOnProgressBar.Refresh()
+		g.Value = g.ProgressBar.Value // todo: не обновляется так элемент слайса
 		writeGoalsIntoFile(Goals)
 	})
 	changeButton := widget.NewButton("  ...  ", func() {
@@ -374,10 +374,17 @@ func writeGoalNotes(s string) error {
 Записи: создание, удаление, завершение
 */
 func writeHistoryFile(prefix, name, description string, t time.Time, val, max float64) error {
-	s := fmt.Sprintf("%v %v: %v :%v (max: %.0f, done: %.0f)", t.Format("02.01.2006 15:04:05"), prefix, name, description, max, val)
-	err := os.WriteFile(HistoryFile, []byte(s), 0777) // todo: Fatal нужна дозапись, а не перезаписть
+	text := fmt.Sprintf("%v %v: %v — %v (max: %.0f, done: %.0f)\n", t.Format("02.01.2006 15:04:05"), prefix, name, description, max, val)
+	f, err := os.OpenFile(HistoryFile, os.O_RDWR|os.O_APPEND, os.ModeType)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("Ошибка записи файла HistoryFile: %v", err)
 	}
+	defer f.Close()
+	n, err := f.WriteString(text)
+	if err != nil {
+		fmt.Printf("Ошибка записи строки в HistoryFile: %v", err)
+	}
+	fmt.Printf("Записано символов: %v", n)
+
 	return err
 }
