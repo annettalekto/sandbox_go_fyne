@@ -58,9 +58,9 @@ func (g *goalType) Init(name, description string, max, value float64) {
 	plusButton := widget.NewButton("  +  ", func() {
 		g.ProgressBar.Value++ // todo: это работает, но в Goals не попадает
 		g.ProgressBar.Refresh()
+		g.Value = g.ProgressBar.Value // todo: не обновляется так элемент слайса
 		g.TextOnProgressBar.Text = fillOutProgressBar(g.Name, g.Value, g.Max)
 		g.TextOnProgressBar.Refresh()
-		g.Value = g.ProgressBar.Value // todo: не обновляется так элемент слайса
 		writeGoalsIntoFile(Goals)
 	})
 	changeButton := widget.NewButton("  ...  ", func() {
@@ -298,12 +298,14 @@ func newGoalForm(goalsBox *fyne.Container) {
 			errorLabel.Refresh()
 			return
 		}
-
 		errorLabel.Text = "ок"
-		var g goalType
-		g.Init(name, description, float64(max), 0)
-		Goals = append(Goals, g)
-		goalsBox.Add(g.Box)
+
+		// var g goalType
+		// g.Init(name, description, float64(max), 0)
+		// Goals = append(Goals, g)
+		Goals = append(Goals, goalType{Name: ""})
+		Goals[len(Goals)-1].Init(name, description, float64(max), 0)
+		goalsBox.Add(Goals[len(Goals)-1].Box)
 		writeGoalsIntoFile(Goals)
 		w.Close()
 	})
