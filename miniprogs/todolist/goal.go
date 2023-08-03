@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"io"
 	"log"
+	"math"
 	"os"
 	"strconv"
 	"time"
@@ -21,7 +22,7 @@ import (
 // goalType data
 type goalType struct {
 	Name, Description string
-	Max, Value        float64             // todo: может быть дробным?
+	Max, Value        int16
 	TextOnProgressBar *canvas.Text        `json:"-"`
 	ProgressBar       *widget.ProgressBar `json:"-"`
 	Box               *fyne.Container     `json:"-"`
@@ -37,7 +38,7 @@ var GoalsNoteFile string = "data\\goal_notes.txt"
 var HistoryFile string = "data\\history.txt"
 
 // Init инициализирует все элементы переменной типа goalType, прописывает имена и тексты
-func (g *goalType) Init(name, description string, max, value float64) {
+func (g *goalType) Init(name, description string, max, value int16) {
 	g.Name = name
 	g.Description = description
 	g.Max = max
@@ -51,14 +52,14 @@ func (g *goalType) Init(name, description string, max, value float64) {
 	textGoalsBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(0, 30)), g.TextOnProgressBar)
 
 	g.ProgressBar = widget.NewProgressBar()
-	g.ProgressBar.Max = max
-	g.ProgressBar.Value = value
-	g.ProgressBar.SetValue(value)
+	g.ProgressBar.Max = float64(max)
+	g.ProgressBar.Value = float64(value)
+	g.ProgressBar.SetValue(float64(value))
 
 	plusButton := widget.NewButton("  +  ", func() {
-		g.ProgressBar.Value++ // todo: это работает, но в Goals не попадает
+		g.ProgressBar.Value++
 		g.ProgressBar.Refresh()
-		g.Value = g.ProgressBar.Value // todo: не обновляется так элемент слайса
+		g.Value = int16(g.ProgressBar.Value)
 		g.TextOnProgressBar.Text = fillOutProgressBar(g.Name, g.Value, g.Max)
 		g.TextOnProgressBar.Refresh()
 		writeGoalsIntoFile(Goals)
@@ -71,19 +72,11 @@ func (g *goalType) Init(name, description string, max, value float64) {
 
 }
 
-func fillOutProgressBar(name string, val, max float64) string {
-	return fmt.Sprintf("     %s (%.0f из %.0f)", name, val, max) // без пробелов выходит за прогресс бар слева
+func fillOutProgressBar(name string, val, max int16) string {
+	return fmt.Sprintf("     %s (%v из %v)", name, val, max) // без пробелов выходит за прогресс бар слева
 }
 
-// // IncrementProgress прибавить прогресс
-// func (g *goalType) IncrementProgress() {
-// 	g.Value = g.ProgressBar.Value
-// 	g.ProgressBar.Value++
-// 	g.ProgressBar.Refresh()
-// 	writeGoalsIntoFile(Goals)
-// }
-
-// ChangeGoalForm форма для изменения параметров цели
+// ChangeGoalForm форма для изменения параметров цели, удаления и завершения
 func (g *goalType) ChangeGoalForm() {
 
 	w := fyne.CurrentApp().NewWindow("Изменить")
@@ -112,7 +105,7 @@ func (g *goalType) ChangeGoalForm() {
 		v, err := strconv.Atoi(s)
 		if err == nil {
 			g.ProgressBar.Value = float64(v)
-			g.Value = g.ProgressBar.Value
+			g.Value = int16(g.ProgressBar.Value)
 			g.ProgressBar.Refresh()
 			g.TextOnProgressBar.Text = fillOutProgressBar(g.Name, g.Value, g.Max)
 			g.TextOnProgressBar.Refresh()
@@ -126,14 +119,12 @@ func (g *goalType) ChangeGoalForm() {
 		widget.NewLabel(fmt.Sprintf("(из %v)", g.ProgressBar.Max)), valueEntry)
 
 	doneButton := widget.NewButton("Завершить", func() {
-		// сделать не активной пока не будет 100%?
-		// добавить файл завершенных проектов?
-		if g.Max != g.ProgressBar.Value {
+		if g.Max != int16(g.ProgressBar.Value) {
 			msg := fmt.Sprintf("Завершение цели \"%s\"", g.Name)
-			d := dialog.NewConfirm(msg, "Прогресс не 100% Завершить?", func(ok bool) {
+			d := dialog.NewConfirm(msg, "Прогресс не 100%. Завершить?", func(ok bool) {
 				if ok {
 					w.Close()
-					Goals = removeGoals(Goals, g.Name)
+					Goals = removeGoal(Goals, g.Name)
 					GoalsBox.Remove(g.Box)
 					writeGoalsIntoFile(Goals)
 					writeHistoryFile("Done", g.Name, g.Description, g.Start, g.Value, g.Max)
@@ -149,10 +140,11 @@ func (g *goalType) ChangeGoalForm() {
 		d := dialog.NewConfirm(msg, "Точно удалить?", func(ok bool) {
 			if ok {
 				w.Close()
-				Goals = removeGoals(Goals, g.Name)
-				GoalsBox.Remove(g.Box)
-				writeGoalsIntoFile(Goals)
-				writeHistoryFile("Delete", g.Name, g.Description, g.Start, g.Value, g.Max)
+				Goals = removeGoal(Goals, g.Name) // работает
+				GoalsBox.Remove(g.Box)            // не верно, удаляется последний
+				GoalsBox.Refresh()
+				writeGoalsIntoFile(Goals)                                                  // работает
+				writeHistoryFile("Delete", g.Name, g.Description, g.Start, g.Value, g.Max) // не работает, пишет про последний объект
 			}
 		}, w)
 		d.SetDismissText("Отмена") // todo: хм...
@@ -173,7 +165,7 @@ func (g *goalType) ChangeGoalForm() {
 	w.Show()
 }
 
-func removeGoals(slice []goalType, name string) []goalType {
+func removeGoal(slice []goalType, name string) []goalType {
 	pos := 0
 	for i, g := range slice {
 		if g.Name == name {
@@ -209,34 +201,8 @@ func goalForm() *fyne.Container {
 		newGoalForm(GoalsBox)
 	})
 
-	notesEntry := widget.NewMultiLineEntry()
-	notesEntry.Wrapping = fyne.TextWrapWord
-	s, _ := readGoalNotes()
-	notesEntry.Text = s
-	notesEntry.OnChanged = func(s string) {
-		writeGoalNotes(s)
-	}
-
-	// testButton := widget.NewButton("Запись файла", func() { // debug
-	// 	writeGoalsIntoFile(Goals)
-	// })
-	button := container.NewBorder(nil, nil, nil, addGoalButton)
-
-	box := container.NewVBox(GoalsBox, button)
-
-	// go func() {
-	// 	l := len(Goals)
-	// 	sec := time.NewTicker(time.Second / 2)
-	// 	for range sec.C {
-	// 		if l != len(Goals) {
-	// 			l = len(Goals)
-
-	// 			box.Refresh()
-	// 		}
-	// 	}
-	// }()
-
-	return container.NewBorder(box, nil, nil, nil, notesEntry)
+	buttonOnLeftBox := container.NewBorder(nil, nil, nil, addGoalButton)
+	return container.NewVBox(GoalsBox, buttonOnLeftBox)
 }
 
 // newGoalForm форма для создания новой цели, открывается по нажатию кнопки «Новая цель» на главном экране
@@ -268,7 +234,7 @@ func newGoalForm(goalsBox *fyne.Container) {
 		name = nameEntry.Text
 		if name == "" {
 			err = fmt.Errorf("поле ввода \"%s\" не может быть пустым", nameStr)
-			errorLabel.Text = err.Error()
+			errorLabel.Text = err.Error() // todo: текс должен умещаться!
 			errorLabel.Refresh()
 			return
 		}
@@ -293,8 +259,8 @@ func newGoalForm(goalsBox *fyne.Container) {
 			errorLabel.Refresh()
 			return
 		}
-		if max > 1000000 { //todo: почему такое число?
-			err = fmt.Errorf("\"%s\" слишком большое (более 1 000 000)", maxValueStr)
+		if max > math.MaxInt16 { // 32767
+			err = fmt.Errorf("\"%s\" больше %v", maxValueStr, math.MaxInt16)
 			errorLabel.Text = "Ошибка: " + err.Error()
 			errorLabel.Refresh()
 			return
@@ -306,7 +272,7 @@ func newGoalForm(goalsBox *fyne.Container) {
 		// Goals = append(Goals, g); НО не работает плюс к goal.value (в файл пишется 0 всегда)
 		Goals = append(Goals, goalType{Name: ""})
 		i := len(Goals) - 1 // текущий элемент (после добавления)
-		Goals[i].Init(name, description, float64(max), 0)
+		Goals[i].Init(name, description, int16(max), 0)
 		goalsBox.Add(Goals[i].Box)
 		writeGoalsIntoFile(Goals)
 
@@ -360,28 +326,9 @@ func writeGoalsIntoFile(g []goalType) error {
 	return err
 }
 
-func readGoalNotes() (string, error) {
-	in, err := os.ReadFile(GoalsNoteFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	// fmt.Println(in)
-	return string(in), err
-}
-
-func writeGoalNotes(s string) error {
-	err := os.WriteFile(GoalsNoteFile, []byte(s), 0777)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return err
-}
-
-/*
-Записи: создание, удаление, завершение
-*/
-func writeHistoryFile(prefix, name, description string, t time.Time, val, max float64) error {
-	text := fmt.Sprintf("%v %v goal: %v — %v (max: %.0f, done: %.0f)\n", t.Format("02.01.2006 15:04:05"), prefix, name, description, max, val)
+// Записи: создание, удаление, завершение
+func writeHistoryFile(prefix, name, description string, t time.Time, val, max int16) error {
+	text := fmt.Sprintf("%v %v goal: %v — %v (max: %v, done: %v)\n", t.Format("02.01.2006 15:04:05"), prefix, name, description, max, val)
 	f, err := os.OpenFile(HistoryFile, os.O_RDWR|os.O_APPEND, os.ModeType)
 	if err != nil {
 		fmt.Printf("Ошибка записи файла HistoryFile: %v", err)
