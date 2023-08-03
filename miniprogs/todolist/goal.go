@@ -36,14 +36,14 @@ var goalJSON string = "data\\goal.json"
 var GoalsNoteFile string = "data\\goal_notes.txt"
 var HistoryFile string = "data\\history.txt"
 
-// Init for goalType's progressBar
+// Init инициализирует все элементы переменной типа goalType, прописывает имена и тексты
 func (g *goalType) Init(name, description string, max, value float64) {
 	g.Name = name
 	g.Description = description
 	g.Max = max
 	g.Value = value
 	g.Start = time.Now()
-	writeHistoryFile("Create", g.Name, g.Description, g.Start, g.Value, g.Max) // todo: сохраняется по нескольку раз тк вызывается и при создании вновь и при загрузки
+	// writeHistoryFile("Create", g.Name, g.Description, g.Start, g.Value, g.Max) // сохраняется по нескольку раз тк вызывается и при создании вновь и при загрузки
 
 	g.TextOnProgressBar = canvas.NewText("Goal", color.Black)
 	g.TextOnProgressBar.Text = fillOutProgressBar(g.Name, g.Value, g.Max)
@@ -239,6 +239,7 @@ func goalForm() *fyne.Container {
 	return container.NewBorder(box, nil, nil, nil, notesEntry)
 }
 
+// newGoalForm форма для создания новой цели, открывается по нажатию кнопки «Новая цель» на главном экране
 func newGoalForm(goalsBox *fyne.Container) {
 	w := fyne.CurrentApp().NewWindow("Создать цель")
 	w.Resize(fyne.NewSize(500, 200))
@@ -246,9 +247,9 @@ func newGoalForm(goalsBox *fyne.Container) {
 	w.CenterOnScreen()
 
 	var err error
-	var name, description string // todo: как передать данные
+	var name, description string
 	var max int
-	errorLabel := widget.NewLabel("...") // вывод ошибок
+	errorLabel := widget.NewLabel("...") // для вывода ошибок
 
 	nameStr := "Название цели"
 	nameEntry := widget.NewEntry() //todo: можно так же проверять по нажатию enter
@@ -300,13 +301,17 @@ func newGoalForm(goalsBox *fyne.Container) {
 		}
 		errorLabel.Text = "ок"
 
-		// var g goalType
-		// g.Init(name, description, float64(max), 0)
-		// Goals = append(Goals, g)
+		// var g goalType; Тут не работает так, если отдельно создать переменную типа goalType
+		// g.Init(name, description, float64(max), 0); ТО все вроде бы появляется где нужно
+		// Goals = append(Goals, g); НО не работает плюс к goal.value (в файл пишется 0 всегда)
 		Goals = append(Goals, goalType{Name: ""})
-		Goals[len(Goals)-1].Init(name, description, float64(max), 0)
-		goalsBox.Add(Goals[len(Goals)-1].Box)
+		i := len(Goals) - 1 // текущий элемент (после добавления)
+		Goals[i].Init(name, description, float64(max), 0)
+		goalsBox.Add(Goals[i].Box)
 		writeGoalsIntoFile(Goals)
+
+		// todo: тут немного криво, то имена, то через слайс, но запихиванть в Init, будут дубликаты
+		writeHistoryFile("Create", Goals[i].Name, Goals[i].Description, Goals[i].Start, 0, Goals[i].Max)
 		w.Close()
 	})
 	buttonBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(80, 30)), buttonOk) // size
@@ -376,7 +381,7 @@ func writeGoalNotes(s string) error {
 Записи: создание, удаление, завершение
 */
 func writeHistoryFile(prefix, name, description string, t time.Time, val, max float64) error {
-	text := fmt.Sprintf("%v %v: %v — %v (max: %.0f, done: %.0f)\n", t.Format("02.01.2006 15:04:05"), prefix, name, description, max, val)
+	text := fmt.Sprintf("%v %v goal: %v — %v (max: %.0f, done: %.0f)\n", t.Format("02.01.2006 15:04:05"), prefix, name, description, max, val)
 	f, err := os.OpenFile(HistoryFile, os.O_RDWR|os.O_APPEND, os.ModeType)
 	if err != nil {
 		fmt.Printf("Ошибка записи файла HistoryFile: %v", err)
