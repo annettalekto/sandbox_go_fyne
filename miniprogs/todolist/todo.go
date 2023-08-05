@@ -67,7 +67,7 @@ func (t *taskType) Init(name string, priority taskPriority, done bool) {
 //
 // ----------------------------------------------------------------------------
 
-func taskForm(t *container.AppTabs) *fyne.Container {
+func taskForm() *fyne.Container {
 	TasksDone = binding.NewFloat()
 
 	savedTasks, err := readTasksFromFile()
@@ -116,13 +116,13 @@ func taskForm(t *container.AppTabs) *fyne.Container {
 		TasksDone.Set(0)
 	})
 
-	notesEntry := widget.NewMultiLineEntry()
-	notesEntry.Wrapping = fyne.TextWrapWord
-	s, _ := readTaskNotes()
-	notesEntry.Text = s
-	notesEntry.OnChanged = func(s string) {
-		writeTaskNotes(s)
-	}
+	// notesEntry := widget.NewMultiLineEntry()
+	// notesEntry.Wrapping = fyne.TextWrapWord
+	// s, _ := readTaskNotes()
+	// notesEntry.Text = s
+	// notesEntry.OnChanged = func(s string) {
+	// 	writeTaskNotes(s)
+	// }
 
 	// testButton := widget.NewButton("Записть файла", func() { // debug
 	//writeTasksIntoFile(Tasks)
@@ -132,7 +132,7 @@ func taskForm(t *container.AppTabs) *fyne.Container {
 	tasksBox := container.NewVBox(buttonBox, tb)
 	pb := container.NewVBox(pbarInf, pbar)
 
-	tasksBox = container.NewBorder(tasksBox, pb, nil, nil, notesEntry)
+	tasksBox = container.NewBorder(tasksBox, pb, nil, nil)
 
 	go func() {
 		l := len(Tasks)
@@ -241,19 +241,19 @@ func writeTasksIntoFile(g []taskType) error {
 	return err
 }
 
-func readTaskNotes() (string, error) {
-	in, err := os.ReadFile(TasksNoteFile)
-	if err != nil {
-		fmt.Println(err)
-	}
-	// fmt.Println(in)
-	return string(in), err
-}
+// func readTaskNotes() (string, error) {
+// 	in, err := os.ReadFile(TasksNoteFile)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	// fmt.Println(in)
+// 	return string(in), err
+// }
 
-func writeTaskNotes(s string) error {
-	err := os.WriteFile(TasksNoteFile, []byte(s), 0777)
-	if err != nil {
-		fmt.Println(err)
-	}
-	return err
-}
+// func writeTaskNotes(s string) error {
+// 	err := os.WriteFile(TasksNoteFile, []byte(s), 0777)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	return err
+// }

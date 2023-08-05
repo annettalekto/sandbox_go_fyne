@@ -13,12 +13,31 @@ func main() {
 	w.CenterOnScreen()
 	w.SetMaster()
 
-	var tabs *container.AppTabs
-	tabs = container.NewAppTabs(
+	// var tabs *container.AppTabs
+	tabs := container.NewAppTabs(
 		container.NewTabItem("My goals", goalForm()),
-		container.NewTabItem("My tasks", taskForm(tabs)),
+		container.NewTabItem("My tasks", taskForm()),
 	)
 	tabs.SetTabLocation(container.TabLocationBottom)
+
+	// go func() {
+	// 	sec := time.NewTicker(5 * time.Second)
+	// 	for range sec.C {
+	// 		s := fmt.Sprintf("len %v:\t", len(Goals))
+	// 		for _, g := range Goals {
+	// 			s += fmt.Sprintf("%v, ", g.Name)
+	// 		}
+	// 		fmt.Println(s)
+
+	// 		// ss := fmt.Sprintf("box %v:\t", len(GoalsBox.Objects))
+	// 		// for i, _ := range GoalsBox.Objects {
+	// 		// 	ss += fmt.Sprintf("%v, ", i)
+	// 		// }
+	// 		// fmt.Println(s)
+	// 		w.Canvas().Refresh(tabs.Selected().Content)
+	// 		tabs.Refresh()
+	// 	}
+	// }()
 
 	w.SetContent(tabs)
 	w.ShowAndRun()
