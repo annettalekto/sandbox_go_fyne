@@ -240,6 +240,7 @@ func goalForm() *fyne.Container {
 				Goals[len(Goals)-1].Init(g.Name, g.Description, g.Max, g.Value) // убрать лишнее из инит
 				GoalsBox.Add(Goals[len(Goals)-1].Box)
 			}
+			goals2 = nil // todo: channel
 		}
 	}()
 
