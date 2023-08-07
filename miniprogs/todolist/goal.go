@@ -19,6 +19,14 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+type goalType2 struct { // для обмена между функциями
+	Name, Description string
+	Max, Value        int16
+	Deleted           bool
+}
+
+var goals2 = make([]goalType2, 0)
+
 // goalType data
 type goalType struct {
 	Name, Description string
@@ -31,15 +39,7 @@ type goalType struct {
 	Deleted bool
 }
 
-// type goalBoxType struct {
-// 	box *fyne.Container
-// 	i   int
-// }
-
 var Goals = make([]goalType, 0, 10) // todo: зачем тут емкость?
-// var GoalsBox = container.NewVBox()
-var MainForm = container.NewVBox()
-
 // var GoalBoxes = make([]goalBoxType, 0, 10)
 
 var goalJSON string = "data\\goal.json"
@@ -47,7 +47,7 @@ var GoalsNoteFile string = "data\\goal_notes.txt"
 var HistoryFile string = "data\\history.txt"
 
 // Init инициализирует все элементы переменной типа goalType, прописывает имена и тексты
-func (g *goalType) Init(goalsBox *fyne.Container, name, description string, max, value int16) {
+func (g *goalType) Init(name, description string, max, value int16) {
 	g.Name = name
 	g.Description = description
 	g.Max = max
@@ -74,7 +74,7 @@ func (g *goalType) Init(goalsBox *fyne.Container, name, description string, max,
 		writeGoalsIntoFile(Goals)
 	})
 	changeButton := widget.NewButton("  ...  ", func() {
-		g.ChangeGoalForm(goalsBox)
+		g.ChangeGoalForm()
 	})
 	buttonBox := container.NewHBox(plusButton, changeButton)
 	g.Box = container.NewBorder(nil, nil, textGoalsBox, buttonBox, g.ProgressBar)
@@ -91,7 +91,7 @@ func Refresh() {
 }
 
 // ChangeGoalForm форма для изменения параметров цели, удаления и завершения
-func (g *goalType) ChangeGoalForm(goalsBox *fyne.Container) {
+func (g *goalType) ChangeGoalForm() {
 
 	w := fyne.CurrentApp().NewWindow("Изменить")
 	w.Resize(fyne.NewSize(400, 270))
@@ -139,10 +139,7 @@ func (g *goalType) ChangeGoalForm(goalsBox *fyne.Container) {
 				if ok {
 					w.Close()
 					Goals = removeGoal(Goals, g.Name)
-					// GoalsBox.Remove(g.Box)
-					goalsBox = makeBox(Goals)
-					goalsBox.Refresh()
-					Refresh()
+					GoalsBox.Remove(g.Box)
 					writeGoalsIntoFile(Goals)
 					writeHistoryFile("Done", g.Name, g.Description, g.Start, g.Value, g.Max)
 				}
@@ -159,11 +156,10 @@ func (g *goalType) ChangeGoalForm(goalsBox *fyne.Container) {
 				g.Deleted = true
 				fmt.Println(g.Name, g.Deleted)
 				w.Close()
-
 				/*
 					Напрямую как то можно обратиться??
 					todo: как то так
-					добавить индекс в слайс
+					добавить индекс в слайс?
 					там прописывать удаление прям в глобальной (может и прибавление)
 					в одной форме проверять в цикле метки, доб и удалять. Там где бокс создан, без ссылок
 				*/
@@ -174,13 +170,6 @@ func (g *goalType) ChangeGoalForm(goalsBox *fyne.Container) {
 				}
 				// Goals = removeGoal(Goals, g.Name) // работает
 				// goalsBox.Remove(g.Box)            // не верно, удаляется последний?
-				// GoalsBox = makeBox(Goals)
-
-				// goalsBox.Refresh()
-				// MainForm.Refresh()
-				// w.Canvas().Refresh(goalsBox)
-				// w.Content().Refresh()
-				// Refresh()
 				writeGoalsIntoFile(Goals) // работает
 				// writeHistoryFile("Delete", g.Name, g.Description, g.Start, g.Value, g.Max) // не работает, пишет про последний объект
 			}
@@ -218,24 +207,11 @@ func removeGoal(slice []goalType, name string) []goalType {
 	return slice[:len(slice)-1]
 }
 
-// func removeBox(rem fyne.CanvasObject) {
-// 	rem.
-// }
-
 // ----------------------------------------------------------------------------
 //
 //	goal form
 //
 // ----------------------------------------------------------------------------
-
-// func makeBox(goals []goalType) *fyne.Container {
-// 	box := container.NewVBox()
-// 	for _, goal := range goals {
-// 		// box.Add(goals[len(goals)-1].Box)
-// 		box.Add(goal.Box)
-// 	}
-// 	return box
-// }
 
 func goalForm() *fyne.Container {
 	var GoalsBox = container.NewVBox()
@@ -246,13 +222,13 @@ func goalForm() *fyne.Container {
 
 	for _, saved := range savedGoals {
 		Goals = append(Goals, goalType{Name: ""})
-		Goals[len(Goals)-1].Init(GoalsBox, saved.Name, saved.Description, saved.Max, saved.Value)
+		Goals[len(Goals)-1].Init(saved.Name, saved.Description, saved.Max, saved.Value)
 
-		GoalsBox.Add(Goals[len(Goals)-1].Box) //makeBox работает
+		GoalsBox.Add(Goals[len(Goals)-1].Box)
 	}
 
 	addGoalButton := widget.NewButton("Новая цель", func() {
-		newGoalForm(GoalsBox)
+		newGoalForm()
 	})
 
 	delButton := widget.NewButton("del", func() {
@@ -271,12 +247,12 @@ func goalForm() *fyne.Container {
 	})
 
 	buttonOnLeftBox := container.NewBorder(nil, nil, nil, addGoalButton)
-	MainForm = container.NewVBox(GoalsBox, buttonOnLeftBox, delButton)
-	return MainForm
+	return container.NewVBox(GoalsBox, buttonOnLeftBox, delButton)
+
 }
 
 // newGoalForm форма для создания новой цели, открывается по нажатию кнопки «Новая цель» на главном экране
-func newGoalForm(goalsBox *fyne.Container) {
+func newGoalForm() {
 	w := fyne.CurrentApp().NewWindow("Создать цель")
 	w.Resize(fyne.NewSize(500, 200))
 	w.SetFixedSize(true)
@@ -337,17 +313,23 @@ func newGoalForm(goalsBox *fyne.Container) {
 		}
 		errorLabel.Text = "ок"
 
+		/* ТЕСТ */
+		var goal goalType2
+		goal.Name = name
+		goal.Description = description
+		goal.Max = int16(max)
+		goals2 = append(goals2, goal)
+
 		// var g goalType; Тут не работает так, если отдельно создать переменную типа goalType
 		// g.Init(name, description, float64(max), 0); ТО все вроде бы появляется где нужно
 		// Goals = append(Goals, g); НО не работает плюс к goal.value (в файл пишется 0 всегда)
-		Goals = append(Goals, goalType{Name: ""})
-		i := len(Goals) - 1 // текущий элемент (после добавления)
-		Goals[i].Init(goalsBox, name, description, int16(max), 0)
-		goalsBox.Add(Goals[i].Box) // todo: a зачем через ссылку можно на прямую... makeBox
-		writeGoalsIntoFile(Goals)
-
+		// Goals = append(Goals, goalType{Name: ""})
+		// i := len(Goals) - 1 // текущий элемент (после добавления)
+		// Goals[i].Init(name, description, int16(max), 0)
+		// goalsBox.Add(Goals[i].Box) // todo: a зачем через ссылку можно на прямую... makeBox
+		// writeGoalsIntoFile(Goals)
 		// todo: тут немного криво, то имена, то через слайс, но запихиванть в Init, будут дубликаты
-		writeHistoryFile("Create", Goals[i].Name, Goals[i].Description, Goals[i].Start, 0, Goals[i].Max)
+		// writeHistoryFile("Create", Goals[i].Name, Goals[i].Description, Goals[i].Start, 0, Goals[i].Max)
 		w.Close()
 	})
 	buttonBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(80, 30)), buttonOk) // size
