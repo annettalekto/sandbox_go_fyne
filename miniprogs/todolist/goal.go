@@ -220,6 +220,7 @@ func goalForm() *fyne.Container {
 		fmt.Printf("ошибка получения данных json: %v", err)
 	}
 
+	// тут сохранение только в глоб слайс 2
 	for _, saved := range savedGoals {
 		Goals = append(Goals, goalType{Name: ""})
 		Goals[len(Goals)-1].Init(saved.Name, saved.Description, saved.Max, saved.Value)
@@ -228,9 +229,21 @@ func goalForm() *fyne.Container {
 	}
 
 	addGoalButton := widget.NewButton("Новая цель", func() {
-		newGoalForm()
+		newGoalForm() // получение текстовой инфы
 	})
 
+	go func() {
+		sec := time.NewTicker(1000 * time.Millisecond)
+		for range sec.C {
+			for _, g := range goals2 {
+				Goals = append(Goals, goalType{Name: ""})                       // пока через ето
+				Goals[len(Goals)-1].Init(g.Name, g.Description, g.Max, g.Value) // убрать лишнее из инит
+				GoalsBox.Add(Goals[len(Goals)-1].Box)
+			}
+		}
+	}()
+
+	/*TECT*/
 	delButton := widget.NewButton("del", func() {
 		for _, g := range Goals {
 			if g.Deleted {
