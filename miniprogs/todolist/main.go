@@ -34,8 +34,8 @@ func mainForm() *fyne.Container {
 
 	var task1, task2 taskType
 	done := binding.NewFloat()
-	task1.Create("Go test", ComputerStuff)
-	task2.Create("Йога", Housework)
+	task1.Create("Go test", "slice разбор", ComputerStuff)
+	task2.Create("Йога", "3 упр", Housework)
 	pbar := widget.NewProgressBarWithData(done)
 	pbar.Max = 2 // количество задач на сегодня
 	pbar.Min = 1
@@ -47,9 +47,9 @@ func mainForm() *fyne.Container {
 	taskBox := container.NewBorder(box, nil, nil, buttonBox)
 	// см сколько задач -> добавить прогресс бар на сегодня, прибавлять по завершению задач
 
-	var note1, note2 noteType
-	note1.Create("Go slice", ComputerStuff)
-	note2.Create("3 упражнения", Housework)
+	var note1, note2 noteType // note: разделиетельные лайблы выделить полосой
+	note1.Create("Незабыть про голицина")
+	note2.Create("вычесать кошку")
 	box = container.NewVBox(widget.NewLabel("Заметки:"), note1.TextWidget, note2.TextWidget)
 	addNote := widget.NewButton("New note", nil)
 	cleanAll := widget.NewButton("Clean all", nil) // todo: заменить на удаление по одной
@@ -75,6 +75,7 @@ type goalType struct {
 	ProgressBar *widget.ProgressBar
 	Button      *widget.Button
 	Box         *fyne.Container
+	// note: добавить цельное название / описание
 }
 
 // Create for goalType's progressBar
@@ -92,9 +93,7 @@ func (g *goalType) Create(name string, max float64) {
 
 	g.Button = widget.NewButton("  +  ", nil)
 
-	boxH := container.NewBorder(nil, nil, nil, g.Button, g.ProgressBar)
-
-	g.Box = container.NewVBox(label, boxH)
+	g.Box = container.NewBorder(nil, nil, label, g.Button, g.ProgressBar)
 }
 
 // ----------------------------------------------------------------------------
@@ -109,24 +108,32 @@ type taskStatus int
 // taskType data
 type taskType struct {
 	Name       string
+	Note       string
 	Status     taskStatus
 	Check      *widget.Check
-	TextWidget *canvas.Text
+	NameWidget *canvas.Text
+	NoteWidget *canvas.Text
 	Box        *fyne.Container
 	// Button *widget.Button
 }
 
-func (t *taskType) Create(name string, status taskStatus) {
+func (t *taskType) Create(name, note string, status taskStatus) {
 	t.Name = name
+	t.Note = note
 	t.Status = status
-	color := GetColorOfStatus(t.Status)
+	cl := GetColorOfStatus(t.Status)
 	t.Check = widget.NewCheck("", nil)
 
-	t.TextWidget = canvas.NewText(name, color)
-	// t.TextWidget = 14
-	t.TextWidget.TextStyle.Monospace = true
-	t.Box = container.NewHBox(t.Check, t.TextWidget)
+	t.NameWidget = canvas.NewText(name, cl)
+	t.NameWidget.TextSize = 14
+	t.NameWidget.TextStyle.Monospace = true
 
+	t.NoteWidget = canvas.NewText("    ("+note+")", color.Black)
+	t.NoteWidget.TextSize = 10
+	t.NameWidget.TextStyle.Italic = true
+
+	// t.Box = container.NewVBox(container.NewHBox(t.Check, t.NameWidget), t.NoteWidget) // пояснение к задаче снизу
+	t.Box = container.NewHBox(t.Check, t.NameWidget, t.NoteWidget) // пояснение к задаче снизу
 }
 
 // ----------------------------------------------------------------------------
@@ -136,21 +143,21 @@ func (t *taskType) Create(name string, status taskStatus) {
 
 // noteType data
 type noteType struct {
-	Name       string
-	Status     taskStatus
+	Name string
+	// Status     taskStatus
 	TextWidget *canvas.Text
 	// todo: добавить удаление или завершение + удаление завершенных
 	// Button *widget.Button
 	// Box    *fyne.Container
 }
 
-func (t *noteType) Create(name string, status taskStatus) {
+func (t *noteType) Create(name string) {
 	t.Name = name
-	t.Status = status
-	color := GetColorOfStatus(t.Status)
+	// t.Status = status
+	// cl := GetColorOfStatus(t.Status)
 
-	t.TextWidget = canvas.NewText(name, color)
-	// t.TextWidget = 14
+	t.TextWidget = canvas.NewText(name, color.Black)
+	t.TextWidget.TextSize = 14
 	t.TextWidget.TextStyle.Italic = true
 }
 
