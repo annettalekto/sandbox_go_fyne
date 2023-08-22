@@ -28,7 +28,9 @@ func mainForm() *fyne.Container {
 	goal1.Create("Читать ITM:", 300)
 	goal2.Create("Читать ENG:", 1300)
 	goal3.Create("Перебрать тетради:", 15)
-	addGoal := widget.NewButton("New goal", nil)
+	addGoal := widget.NewButton("New goal", func() {
+		NewGoalForm()
+	})
 	box := container.NewVBox(goal1.Box, goal2.Box, goal3.Box)
 	goalBox := container.NewBorder(box, nil, nil, addGoal)
 
@@ -59,41 +61,6 @@ func mainForm() *fyne.Container {
 	// придется добавить прокрутку
 
 	return container.NewVBox(goalBox, taskBox, noteBox)
-}
-
-// ----------------------------------------------------------------------------
-// 										goal
-// ----------------------------------------------------------------------------
-
-// var goalSlice []goalType
-
-// goalType data
-type goalType struct {
-	Name        string
-	Max         float64
-	Value       float64
-	ProgressBar *widget.ProgressBar
-	Button      *widget.Button
-	Box         *fyne.Container
-	// note: добавить цельное название / описание
-}
-
-// Create for goalType's progressBar
-func (g *goalType) Create(name string, max float64) {
-	g.Name = name
-	g.Max = max
-	g.Value = 0
-
-	label := widget.NewLabel(g.Name)
-
-	g.ProgressBar = widget.NewProgressBar()
-	g.ProgressBar.Max = g.Max
-	g.ProgressBar.Min = 1
-	g.ProgressBar.SetValue(0)
-
-	g.Button = widget.NewButton("  +  ", nil)
-
-	g.Box = container.NewBorder(nil, nil, label, g.Button, g.ProgressBar)
 }
 
 // ----------------------------------------------------------------------------
