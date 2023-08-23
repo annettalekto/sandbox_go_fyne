@@ -6,16 +6,12 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-// ----------------------------------------------------------------------------
-// 										goal
-// ----------------------------------------------------------------------------
-
 // var goalSlice []goalType
 
 // goalType data
 type goalType struct {
 	Name, Note  string
-	Max, Value  float64
+	Max         float64
 	ProgressBar *widget.ProgressBar
 	Button      *widget.Button
 	Box         *fyne.Container
@@ -23,10 +19,10 @@ type goalType struct {
 }
 
 // Create for goalType's progressBar
-func (g *goalType) Create(name string, max float64) {
+func (g *goalType) Create(name, note string, max float64) {
 	g.Name = name
+	g.Note = note
 	g.Max = max
-	g.Value = 0
 
 	label := widget.NewLabel(g.Name)
 
@@ -35,23 +31,33 @@ func (g *goalType) Create(name string, max float64) {
 	g.ProgressBar.Min = 1
 	g.ProgressBar.SetValue(0)
 
-	g.Button = widget.NewButton("  +  ", nil)
+	g.Button = widget.NewButton("  +  ", func() {
+		// changeGoalForm()
+		g.ChangeValue()
+	})
 
 	g.Box = container.NewBorder(nil, nil, label, g.Button, g.ProgressBar)
 }
 
-func NewGoalForm() {
-	w := fyne.CurrentApp().NewWindow("Создать") // CurrentApp!
+// ChangeValue прибавить прогресс
+func (g *goalType) ChangeValue() {
+	g.ProgressBar.Value++
+	g.ProgressBar.Refresh()
+	// изменение кнопками + -?
+	// изменение через поле ввода (Сделано: )
+	// Изменить описание?
+	// кнопка завершить (должна делать запись в файл и удалять виджит)
+	// удалить (удалить везде)
+}
+
+func changeGoalForm() {
+	w := fyne.CurrentApp().NewWindow("Изменить") // CurrentApp!
 	w.Resize(fyne.NewSize(400, 150))
 	w.SetFixedSize(true)
 	w.CenterOnScreen()
 
-	label := widget.NewLabel("хм")
+	label := widget.NewLabel("гм")
 
 	w.SetContent(label)
 	w.Show() // ShowAndRun -- panic!
-}
-
-func ChangeGoalForm() {
-
 }

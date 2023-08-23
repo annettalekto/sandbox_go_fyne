@@ -22,17 +22,20 @@ func main() {
 	w.ShowAndRun()
 }
 
-func mainForm() *fyne.Container {
+/*
+todo:
+// добавить напоминалку (сообщение по дате)
+// будильник?
+*/
 
-	var goal1, goal2, goal3 goalType
-	goal1.Create("Читать ITM:", 300)
-	goal2.Create("Читать ENG:", 1300)
-	goal3.Create("Перебрать тетради:", 15)
+func mainForm() *fyne.Container {
+	var Goals []goalType
+
+	Goals = append(Goals, getGoalsFromFile()...)
 	addGoal := widget.NewButton("New goal", func() {
-		NewGoalForm()
+		newGoalForm()
 	})
-	box := container.NewVBox(goal1.Box, goal2.Box, goal3.Box)
-	goalBox := container.NewBorder(box, nil, nil, addGoal)
+	goalBox := container.NewBorder(getGoalsBox(Goals), nil, nil, addGoal)
 
 	var task1, task2 taskType
 	done := binding.NewFloat()
@@ -42,7 +45,7 @@ func mainForm() *fyne.Container {
 	pbar.Max = 2 // количество задач на сегодня
 	pbar.Min = 1
 	pbar.SetValue(0)
-	box = container.NewVBox(widget.NewLabel("Задачи на сегдня:"), task1.Box, task2.Box, pbar) // todo: задачи label ярче
+	box := container.NewVBox(widget.NewLabel("Задачи на сегдня:"), task1.Box, task2.Box, pbar) // todo: задачи label ярче
 	addTask := widget.NewButton("New task", nil)
 	cleanTask := widget.NewButton("Clean", nil)
 	buttonBox := container.NewHBox(addTask, cleanTask)
@@ -61,6 +64,42 @@ func mainForm() *fyne.Container {
 	// придется добавить прокрутку
 
 	return container.NewVBox(goalBox, taskBox, noteBox)
+}
+
+// ----------------------------------------------------------------------------
+// 										goal
+// ----------------------------------------------------------------------------
+
+func getGoalsFromFile() []goalType { // todo: File!
+	var goal1, goal2, goal3 goalType
+	goal1.Create("Читать ITM:", "", 300)
+	goal2.Create("Читать ENG:", "", 1300)
+	goal3.Create("Перебрать тетради:", "", 15)
+	var goals []goalType
+	goals = append(goals, goal1, goal2, goal3)
+	return goals
+}
+
+func newGoalForm() {
+	w := fyne.CurrentApp().NewWindow("Создать") // CurrentApp!
+	w.Resize(fyne.NewSize(400, 150))
+	w.SetFixedSize(true)
+	w.CenterOnScreen()
+
+	label := widget.NewLabel("хм")
+
+	w.SetContent(label)
+	w.Show() // ShowAndRun -- panic!
+}
+
+func getGoalsBox(goals []goalType) *fyne.Container {
+
+	// note: при выводе сортировать как то?
+	box := container.NewVBox()
+	for _, g := range goals {
+		box.Add(g.Box)
+	}
+	return box
 }
 
 // ----------------------------------------------------------------------------
