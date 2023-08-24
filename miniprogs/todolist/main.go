@@ -1,13 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
+	"strconv"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -82,13 +85,66 @@ func getGoalsFromFile() []goalType { // todo: File!
 
 func newGoalForm() {
 	w := fyne.CurrentApp().NewWindow("Создать") // CurrentApp!
-	w.Resize(fyne.NewSize(400, 150))
+	w.Resize(fyne.NewSize(500, 200))
 	w.SetFixedSize(true)
 	w.CenterOnScreen()
 
-	label := widget.NewLabel("хм")
+	var err error
+	var name, note string // todo: как передать данные
+	var max int
+	errorLabel := widget.NewLabel("...") // вывод ошибок
 
-	w.SetContent(label)
+	nameStr := "Название"
+	nameEntry := widget.NewEntry()
+	noteStr := "Примечание"
+	noteEntry := widget.NewEntry()
+	maxValueStr := "Максимальноe число задач"
+	maxValueEntry := newNumericalEntry()
+
+	grid := container.NewGridWithColumns(2,
+		widget.NewLabel(nameStr+": "), nameEntry,
+		widget.NewLabel(noteStr+": "), noteEntry,
+		widget.NewLabel(maxValueStr+": "), maxValueEntry,
+	)
+
+	buttonOk := widget.NewButton("OK", func() {
+		name = nameEntry.Text
+		if name == "" {
+			errorLabel.Text = fmt.Sprintf("Поле ввода \"%s\" не может быть пустым", nameStr)
+			errorLabel.Refresh()
+			return
+		}
+		note = noteEntry.Text
+		fmt.Println(note)
+		maxStr := maxValueEntry.Text
+		if maxStr == "" {
+			errorLabel.Text = fmt.Sprintf("Поле ввода \"%s\" не может быть пустым", maxValueStr)
+			errorLabel.Refresh()
+			return
+		}
+		max, err = strconv.Atoi(maxStr)
+		if err != nil {
+			errorLabel.Text = fmt.Sprintf("Ошибка в поле ввода \"%s\"", maxValueStr)
+			errorLabel.Refresh()
+			return
+		}
+		if max <= 0 {
+			errorLabel.Text = fmt.Sprintf("\"%s\" должно быть меньше нуля", maxValueStr)
+			errorLabel.Refresh()
+			return
+		}
+		if max > 1000000 { //
+			errorLabel.Text = fmt.Sprintf("\"%s\" слишком большое (более 1 000 000)", maxValueStr)
+			errorLabel.Refresh()
+			return
+		}
+		errorLabel.Text = "ок"
+	})
+	buttonBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(80, 30)), buttonOk) // size
+	buttonBox = container.NewBorder(nil, nil, nil, buttonBox, nil)                       // left
+	box := container.NewVBox(grid, buttonBox, errorLabel)
+
+	w.SetContent(box)
 	w.Show() // ShowAndRun -- panic!
 }
 

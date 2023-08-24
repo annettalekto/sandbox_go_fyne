@@ -50,14 +50,14 @@ func (g *goalType) ChangeValue() {
 	// удалить (удалить везде)
 }
 
-func changeGoalForm() {
-	w := fyne.CurrentApp().NewWindow("Изменить") // CurrentApp!
-	w.Resize(fyne.NewSize(400, 150))
-	w.SetFixedSize(true)
-	w.CenterOnScreen()
+// func changeGoalForm() {
+// 	w := fyne.CurrentApp().NewWindow("Изменить") // CurrentApp!
+// 	w.Resize(fyne.NewSize(400, 150))
+// 	w.SetFixedSize(true)
+// 	w.CenterOnScreen()
 
-	label := widget.NewLabel("гм")
+// 	label := widget.NewLabel("гм")
 
-	w.SetContent(label)
-	w.Show() // ShowAndRun -- panic!
-}
+// 	w.SetContent(label)
+// 	w.Show() // ShowAndRun -- panic!
+// }
