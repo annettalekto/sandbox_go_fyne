@@ -25,9 +25,10 @@ func mainForm() *fyne.Container {
 	goal2.Create("Читать ENG:", 1300)
 	goal3.Create("Перебрать тетради:", 15)
 
-	check1 := CreateCheck("Уборка")
-	check2 := CreateCheck("Йога")
-	barBox := container.NewVBox(goal1.box, goal2.box, goal3.box, check1, check2)
+	var task1, task2 taskType
+	task1.Create("Уборка")
+	task2.Create("Йога")
+	barBox := container.NewVBox(goal1.Box, goal2.Box, goal3.Box, task1.Check, task2.Check)
 
 	l2 := widget.NewLabel("buttons")
 	split := container.NewHSplit(barBox, l2)
@@ -42,32 +43,32 @@ func mainForm() *fyne.Container {
 
 // goalType data
 type goalType struct {
-	name        string
-	max         float64
-	value       float64
-	progressBar *widget.ProgressBar
-	button      *widget.Button
-	box         *fyne.Container
+	Name        string
+	Max         float64
+	Value       float64
+	ProgressBar *widget.ProgressBar
+	Button      *widget.Button
+	Box         *fyne.Container
 }
 
 // Create for goalType's progressBar
 func (g *goalType) Create(name string, max float64) {
-	g.name = name
-	g.max = max
-	g.value = 0
+	g.Name = name
+	g.Max = max
+	g.Value = 0
 
-	label := widget.NewLabel(g.name)
+	label := widget.NewLabel(g.Name)
 
-	g.progressBar = widget.NewProgressBar()
-	g.progressBar.Max = g.max
-	g.progressBar.Min = 1
-	g.progressBar.SetValue(0)
+	g.ProgressBar = widget.NewProgressBar()
+	g.ProgressBar.Max = g.Max
+	g.ProgressBar.Min = 1
+	g.ProgressBar.SetValue(0)
 
-	g.button = widget.NewButton("Изменить", nil)
+	g.Button = widget.NewButton("  +  ", nil)
 
-	boxH := container.NewBorder(nil, nil, nil, g.button, g.progressBar)
+	boxH := container.NewBorder(nil, nil, nil, g.Button, g.ProgressBar)
 
-	g.box = container.NewVBox(label, boxH)
+	g.Box = container.NewVBox(label, boxH)
 }
 
 // ----------------------------------------------------------------------------
@@ -75,19 +76,18 @@ func (g *goalType) Create(name string, max float64) {
 // ----------------------------------------------------------------------------
 // var todoSlice []goalType
 
-// todoType data
-// type goalType struct {
-// 	name        string
-// 	max         float64
-// 	value       float64
-// 	progressBar *widget.ProgressBar
-// 	button      *widget.Button
-// 	box         *fyne.Container
-// }
+// taskType data
+type taskType struct {
+	Name string
 
-func CreateCheck(name string) *widget.Check {
-	check := widget.NewCheck(name, nil)
-	return check
+	Check *widget.Check
+	// Button *widget.Button
+	// Box    *fyne.Container
+}
+
+func (t *taskType) Create(name string) {
+	t.Name = name
+	t.Check = widget.NewCheck(name, nil)
 }
 
 // ----------------------------------------------------------------------------
