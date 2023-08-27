@@ -1,8 +1,11 @@
 package main
 
 import (
+	"image/color"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 )
@@ -26,9 +29,9 @@ func mainForm() *fyne.Container {
 	goal3.Create("Перебрать тетради:", 15)
 
 	var task1, task2 taskType
-	task1.Create("Уборка")
-	task2.Create("Йога")
-	barBox := container.NewVBox(goal1.Box, goal2.Box, goal3.Box, task1.Check, task2.Check)
+	task1.Create("Уборка", ComputerStuff)
+	task2.Create("Йога", ComputerStuff)
+	barBox := container.NewVBox(goal1.Box, goal2.Box, goal3.Box, task1.Box, task2.Box)
 
 	l2 := widget.NewLabel("buttons")
 	split := container.NewHSplit(barBox, l2)
@@ -72,24 +75,85 @@ func (g *goalType) Create(name string, max float64) {
 }
 
 // ----------------------------------------------------------------------------
-// 										todo
+//
+//	todo
+//
 // ----------------------------------------------------------------------------
-// var todoSlice []goalType
+// var todoSlice []taskType
+// todo: разобрать на файлы
+var (
+	red    = color.NRGBA{R: 255, G: 0, B: 0, A: 255}    // 0: очень срочно!
+	purple = color.NRGBA{R: 184, G: 15, B: 200, A: 255} // 1: срочно
+	orange = color.NRGBA{R: 255, G: 50, B: 20, A: 255}  // 2: в приоритете
+	jellow = color.NRGBA{R: 255, G: 230, B: 5, A: 255}  // 3: другое
+	green  = color.NRGBA{R: 0, G: 255, B: 0, A: 255}    // 4: домашние дела
+	blue   = color.NRGBA{R: 0, G: 0, B: 255, A: 255}    // 5: дела за компом (обучение, работа)
+)
+
+type taskStatus int
+
+const (
+	veryImpotant taskStatus = iota
+	Impotant
+	Priority
+	AnotherOne
+	Housework
+	ComputerStuff
+)
 
 // taskType data
 type taskType struct {
-	Name string
-
-	Check *widget.Check
+	Name       string
+	Status     taskStatus
+	Check      *widget.Check
+	TextWidget *canvas.Text
+	Box        *fyne.Container
 	// Button *widget.Button
-	// Box    *fyne.Container
 }
 
-func (t *taskType) Create(name string) {
+func (t *taskType) Create(name string, status taskStatus) {
+	var color color.NRGBA
 	t.Name = name
-	t.Check = widget.NewCheck(name, nil)
+	t.Status = status
+	t.Check = widget.NewCheck("", nil)
+
+	switch status {
+	case veryImpotant:
+		color = red
+	case Impotant:
+		color = purple
+	case Priority:
+		color = orange
+	case AnotherOne:
+		color = jellow
+	case ComputerStuff:
+		color = blue
+	case Housework:
+		color = green
+
+	}
+	t.TextWidget = canvas.NewText(name, color)
+	// t.TextWidget = 14
+	t.TextWidget.TextStyle.Monospace = true
+	t.Box = container.NewHBox(t.Check, t.TextWidget)
+
 }
 
 // ----------------------------------------------------------------------------
 // 										notes
 // ----------------------------------------------------------------------------
+// var notesSlice []notesType
+
+// noteType data
+type noteType struct {
+	Name string
+
+	Label *widget.Label
+	// Button *widget.Button
+	// Box    *fyne.Container
+}
+
+func (t *noteType) Create(name string) {
+	t.Name = name
+	t.Label = widget.NewLabel(name)
+}
