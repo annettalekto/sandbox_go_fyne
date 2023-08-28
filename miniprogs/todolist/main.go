@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"strconv"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -31,15 +32,23 @@ todo:
 // будильник?
 */
 
-func mainForm() *fyne.Container {
-	var Goals []goalType
+type mainFormType struct {
+	Goals []goalType
+}
 
-	Goals = append(Goals, getGoalsFromFile()...)
-	addGoal := widget.NewButton("New goal", func() {
+var mainFormData mainFormType
+
+func mainForm() *fyne.Container {
+	// var err error
+
+	mainFormData.Goals = append(mainFormData.Goals, getGoalsFromFile()...)
+	addGoalButton := widget.NewButton("New goal", func() {
 		newGoalForm()
 	})
-	goalBox := container.NewBorder(getGoalsBox(Goals), nil, nil, addGoal)
+	goalsBox := getGoalsBox(mainFormData.Goals)
+	goalsAllBox := container.NewBorder(goalsBox, nil, nil, addGoalButton)
 
+	//-----------------
 	var task1, task2 taskType
 	done := binding.NewFloat()
 	task1.Create("Go test", "slice разбор", ComputerStuff)
@@ -66,7 +75,29 @@ func mainForm() *fyne.Container {
 	// todo: или сделать задача - заметка и тд.
 	// придется добавить прокрутку
 
-	return container.NewVBox(goalBox, taskBox, noteBox)
+	debug := widget.NewMultiLineEntry()
+	mainBox := container.NewVBox(goalsAllBox, taskBox, noteBox, debug)
+
+	go func() {
+		sec := time.NewTicker(3 * time.Second)
+		for range sec.C {
+			// отладить
+			debug.SetText("")
+			for i, g := range mainFormData.Goals {
+				s := fmt.Sprintf("%d: %v ", i, g.Name)
+				debug.Append(s)
+			}
+			// обновление элементов
+			goalsBox = getGoalsBox(mainFormData.Goals)
+			// goalsBox.Refresh()
+			goalsAllBox = container.NewBorder(goalsBox, nil, nil, addGoalButton)
+			goalsAllBox.Refresh()
+			// mainBox = container.NewVBox(goalsAllBox, taskBox, noteBox, debug)
+			mainBox.Refresh()
+		}
+	}()
+
+	return mainBox
 }
 
 // ----------------------------------------------------------------------------
@@ -84,6 +115,7 @@ func getGoalsFromFile() []goalType { // todo: File!
 }
 
 func newGoalForm() {
+
 	w := fyne.CurrentApp().NewWindow("Создать") // CurrentApp!
 	w.Resize(fyne.NewSize(500, 200))
 	w.SetFixedSize(true)
@@ -110,35 +142,43 @@ func newGoalForm() {
 	buttonOk := widget.NewButton("OK", func() {
 		name = nameEntry.Text
 		if name == "" {
-			errorLabel.Text = fmt.Sprintf("Поле ввода \"%s\" не может быть пустым", nameStr)
+			err = fmt.Errorf(fmt.Sprintf("Поле ввода \"%s\" не может быть пустым", nameStr))
+			errorLabel.Text = err.Error()
 			errorLabel.Refresh()
 			return
 		}
 		note = noteEntry.Text
-		fmt.Println(note)
 		maxStr := maxValueEntry.Text
 		if maxStr == "" {
-			errorLabel.Text = fmt.Sprintf("Поле ввода \"%s\" не может быть пустым", maxValueStr)
+			err = fmt.Errorf("поле ввода \"%s\" не может быть пустым", maxValueStr)
+			errorLabel.Text = err.Error()
 			errorLabel.Refresh()
 			return
 		}
 		max, err = strconv.Atoi(maxStr)
 		if err != nil {
-			errorLabel.Text = fmt.Sprintf("Ошибка в поле ввода \"%s\"", maxValueStr)
+			err = fmt.Errorf("ошибка в поле ввода \"%s\"", maxValueStr)
+			errorLabel.Text = err.Error()
 			errorLabel.Refresh()
 			return
 		}
 		if max <= 0 {
-			errorLabel.Text = fmt.Sprintf("\"%s\" должно быть меньше нуля", maxValueStr)
+			err = fmt.Errorf("\"%s\" должно быть меньше нуля", maxValueStr)
+			errorLabel.Text = err.Error()
 			errorLabel.Refresh()
 			return
 		}
 		if max > 1000000 { //
-			errorLabel.Text = fmt.Sprintf("\"%s\" слишком большое (более 1 000 000)", maxValueStr)
+			err = fmt.Errorf("\"%s\" слишком большое (более 1 000 000)", maxValueStr)
+			errorLabel.Text = err.Error()
 			errorLabel.Refresh()
 			return
 		}
 		errorLabel.Text = "ок"
+		var g goalType
+		g.Create(name, note, float64(max))
+		mainFormData.Goals = append(mainFormData.Goals, g)
+		w.Close()
 	})
 	buttonBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(80, 30)), buttonOk) // size
 	buttonBox = container.NewBorder(nil, nil, nil, buttonBox, nil)                       // left
@@ -155,6 +195,8 @@ func getGoalsBox(goals []goalType) *fyne.Container {
 	for _, g := range goals {
 		box.Add(g.Box)
 	}
+	box = container.New(layout.NewGridWrapLayout(fyne.NewSize(780, 200)), container.NewVScroll(box))
+	// container.NewVScroll(box)
 	return box
 }
 
