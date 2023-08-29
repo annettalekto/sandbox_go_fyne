@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"image/color"
 	"strconv"
-	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
@@ -42,43 +40,47 @@ func mainForm() *fyne.Container {
 	// var err error
 
 	mainFormData.Goals = append(mainFormData.Goals, getGoalsFromFile()...)
-	addGoalButton := widget.NewButton("New goal", func() {
-		newGoalForm()
-	})
 	goalsBox := getGoalsBox(mainFormData.Goals)
-	goalsAllBox := container.NewBorder(goalsBox, nil, nil, addGoalButton)
+	addGoalButton := widget.NewButton("New goal", func() {
+		newGoalForm(goalsBox)
+		// var g goalType
+		// g.Create("aaa", "", 2)
+		// goalsBox.Add(g.Box)
+	})
+	b := container.New(layout.NewGridWrapLayout(fyne.NewSize(750, 250)), container.NewVScroll(goalsBox))
+	goalsAllBox := container.NewBorder(b, nil, nil, addGoalButton)
 
 	//-----------------
-	var task1, task2 taskType
-	done := binding.NewFloat()
-	task1.Create("Go test", "slice разбор", ComputerStuff)
-	task2.Create("Йога", "3 упр", Housework)
-	pbar := widget.NewProgressBarWithData(done)
-	pbar.Max = 2 // количество задач на сегодня
-	pbar.Min = 1
-	pbar.SetValue(0)
-	box := container.NewVBox(widget.NewLabel("Задачи на сегдня:"), task1.Box, task2.Box, pbar) // todo: задачи label ярче
-	addTask := widget.NewButton("New task", nil)
-	cleanTask := widget.NewButton("Clean", nil)
-	buttonBox := container.NewHBox(addTask, cleanTask)
-	taskBox := container.NewBorder(box, nil, nil, buttonBox)
-	// см сколько задач -> добавить прогресс бар на сегодня, прибавлять по завершению задач
+	/*	var task1, task2 taskType
+		done := binding.NewFloat()
+		task1.Create("Go test", "slice разбор", ComputerStuff)
+		task2.Create("Йога", "3 упр", Housework)
+		pbar := widget.NewProgressBarWithData(done)
+		pbar.Max = 2 // количество задач на сегодня
+		pbar.Min = 1
+		pbar.SetValue(0)
+		box := container.NewVBox(widget.NewLabel("Задачи на сегдня:"), task1.Box, task2.Box, pbar) // todo: задачи label ярче
+		addTask := widget.NewButton("New task", nil)
+		cleanTask := widget.NewButton("Clean", nil)
+		buttonBox := container.NewHBox(addTask, cleanTask)
+		taskBox := container.NewBorder(box, nil, nil, buttonBox)
+		// см сколько задач -> добавить прогресс бар на сегодня, прибавлять по завершению задач
 
-	var note1, note2 noteType // note: разделиетельные лайблы выделить полосой
-	note1.Create("Незабыть про голицина")
-	note2.Create("вычесать кошку")
-	box = container.NewVBox(widget.NewLabel("Заметки:"), note1.TextWidget, note2.TextWidget)
-	addNote := widget.NewButton("New note", nil)
-	cleanAll := widget.NewButton("Clean all", nil) // todo: заменить на удаление по одной
-	buttonBox = container.NewHBox(addNote, cleanAll)
-	noteBox := container.NewBorder(box, nil, nil, buttonBox)
-	// todo: или сделать задача - заметка и тд.
-	// придется добавить прокрутку
+		var note1, note2 noteType // note: разделиетельные лайблы выделить полосой
+		note1.Create("Незабыть про голицина")
+		note2.Create("вычесать кошку")
+		box = container.NewVBox(widget.NewLabel("Заметки:"), note1.TextWidget, note2.TextWidget)
+		addNote := widget.NewButton("New note", nil)
+		cleanAll := widget.NewButton("Clean all", nil) // todo: заменить на удаление по одной
+		buttonBox = container.NewHBox(addNote, cleanAll)
+		noteBox := container.NewBorder(box, nil, nil, buttonBox)
+		// todo: или сделать задача - заметка и тд.
+		// придется добавить прокрутку
+	*/
+	//debug := widget.NewMultiLineEntry()
+	mainBox := container.NewVBox(goalsAllBox /*taskBox, noteBox,, debug*/)
 
-	debug := widget.NewMultiLineEntry()
-	mainBox := container.NewVBox(goalsAllBox, taskBox, noteBox, debug)
-
-	go func() {
+	/*go func() {
 		sec := time.NewTicker(3 * time.Second)
 		for range sec.C {
 			// отладить
@@ -90,12 +92,12 @@ func mainForm() *fyne.Container {
 			// обновление элементов
 			goalsBox = getGoalsBox(mainFormData.Goals)
 			// goalsBox.Refresh()
-			goalsAllBox = container.NewBorder(goalsBox, nil, nil, addGoalButton)
-			goalsAllBox.Refresh()
+			// goalsAllBox = container.NewBorder(goalsBox, nil, nil, addGoalButton)
+			// goalsAllBox.Refresh()
 			// mainBox = container.NewVBox(goalsAllBox, taskBox, noteBox, debug)
-			mainBox.Refresh()
+			// mainBox.Refresh()
 		}
-	}()
+	}()*/
 
 	return mainBox
 }
@@ -114,7 +116,7 @@ func getGoalsFromFile() []goalType { // todo: File!
 	return goals
 }
 
-func newGoalForm() {
+func newGoalForm(goalsBox *fyne.Container) {
 
 	w := fyne.CurrentApp().NewWindow("Создать") // CurrentApp!
 	w.Resize(fyne.NewSize(500, 200))
@@ -178,6 +180,7 @@ func newGoalForm() {
 		var g goalType
 		g.Create(name, note, float64(max))
 		mainFormData.Goals = append(mainFormData.Goals, g)
+		goalsBox.Add(g.Box)
 		w.Close()
 	})
 	buttonBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(80, 30)), buttonOk) // size
@@ -195,8 +198,7 @@ func getGoalsBox(goals []goalType) *fyne.Container {
 	for _, g := range goals {
 		box.Add(g.Box)
 	}
-	box = container.New(layout.NewGridWrapLayout(fyne.NewSize(780, 200)), container.NewVScroll(box))
-	// container.NewVScroll(box)
+	//box = container.New(layout.NewGridWrapLayout(fyne.NewSize(780, 200)), container.NewVScroll(box))
 	return box
 }
 
