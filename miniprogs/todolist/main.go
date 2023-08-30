@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
@@ -43,30 +44,28 @@ func mainForm() *fyne.Container {
 	goalsBox := getGoalsBox(mainFormData.Goals)
 	addGoalButton := widget.NewButton("New goal", func() {
 		newGoalForm(goalsBox)
-		// var g goalType
-		// g.Create("aaa", "", 2)
-		// goalsBox.Add(g.Box)
 	})
 	b := container.New(layout.NewGridWrapLayout(fyne.NewSize(750, 250)), container.NewVScroll(goalsBox))
 	goalsAllBox := container.NewBorder(b, nil, nil, addGoalButton)
 
 	//-----------------
-	/*	var task1, task2 taskType
-		done := binding.NewFloat()
-		task1.Create("Go test", "slice разбор", ComputerStuff)
-		task2.Create("Йога", "3 упр", Housework)
-		pbar := widget.NewProgressBarWithData(done)
-		pbar.Max = 2 // количество задач на сегодня
-		pbar.Min = 1
-		pbar.SetValue(0)
-		box := container.NewVBox(widget.NewLabel("Задачи на сегдня:"), task1.Box, task2.Box, pbar) // todo: задачи label ярче
-		addTask := widget.NewButton("New task", nil)
-		cleanTask := widget.NewButton("Clean", nil)
-		buttonBox := container.NewHBox(addTask, cleanTask)
-		taskBox := container.NewBorder(box, nil, nil, buttonBox)
-		// см сколько задач -> добавить прогресс бар на сегодня, прибавлять по завершению задач
 
-		var note1, note2 noteType // note: разделиетельные лайблы выделить полосой
+	var task1, task2 taskType
+	done := binding.NewFloat()
+	task1.Create("Go test", "slice разбор", ComputerStuff)
+	task2.Create("Йога", "3 упр", Housework)
+	pbar := widget.NewProgressBarWithData(done)
+	pbar.Max = 2 // количество задач на сегодня
+	pbar.Min = 1
+	pbar.SetValue(0)
+	box := container.NewVBox(widget.NewLabel("Задачи на сегдня:"), task1.Box, task2.Box, pbar) // todo: задачи label ярче
+	addTask := widget.NewButton("New task", nil)
+	cleanTask := widget.NewButton("Clean", nil)
+	buttonBox := container.NewHBox(addTask, cleanTask)
+	taskBox := container.NewBorder(box, nil, nil, buttonBox)
+	// см сколько задач -> добавить прогресс бар на сегодня, прибавлять по завершению задач
+
+	/*	var note1, note2 noteType // note: разделиетельные лайблы выделить полосой
 		note1.Create("Незабыть про голицина")
 		note2.Create("вычесать кошку")
 		box = container.NewVBox(widget.NewLabel("Заметки:"), note1.TextWidget, note2.TextWidget)
@@ -78,7 +77,7 @@ func mainForm() *fyne.Container {
 		// придется добавить прокрутку
 	*/
 	//debug := widget.NewMultiLineEntry()
-	mainBox := container.NewVBox(goalsAllBox /*taskBox, noteBox,, debug*/)
+	mainBox := container.NewVBox(goalsAllBox, taskBox /*, noteBox,, debug*/)
 
 	/*go func() {
 		sec := time.NewTicker(3 * time.Second)
