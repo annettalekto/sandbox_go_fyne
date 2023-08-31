@@ -29,8 +29,8 @@ func mainForm() *fyne.Container {
 	goal3.Create("Перебрать тетради:", 15)
 
 	var task1, task2 taskType
-	task1.Create("Уборка", ComputerStuff)
-	task2.Create("Йога", ComputerStuff)
+	task1.Create("Go test", ComputerStuff)
+	task2.Create("Йога", Housework)
 	barBox := container.NewVBox(goal1.Box, goal2.Box, goal3.Box, task1.Box, task2.Box)
 
 	l2 := widget.NewLabel("buttons")
@@ -111,27 +111,35 @@ type taskType struct {
 	// Button *widget.Button
 }
 
-func (t *taskType) Create(name string, status taskStatus) {
-	var color color.NRGBA
-	t.Name = name
-	t.Status = status
-	t.Check = widget.NewCheck("", nil)
+func GetColorOfStatus(status taskStatus) color.NRGBA {
+	var cl color.NRGBA
 
 	switch status {
 	case veryImpotant:
-		color = red
+		cl = red
 	case Impotant:
-		color = purple
+		cl = purple
 	case Priority:
-		color = orange
+		cl = orange
 	case AnotherOne:
-		color = jellow
+		cl = jellow
 	case ComputerStuff:
-		color = blue
+		cl = blue
 	case Housework:
-		color = green
-
+		cl = green
+	default:
+		// cl = color.Black
 	}
+	return cl
+
+}
+
+func (t *taskType) Create(name string, status taskStatus) {
+	t.Name = name
+	t.Status = status
+	color := GetColorOfStatus(t.Status)
+	t.Check = widget.NewCheck("", nil)
+
 	t.TextWidget = canvas.NewText(name, color)
 	// t.TextWidget = 14
 	t.TextWidget.TextStyle.Monospace = true
