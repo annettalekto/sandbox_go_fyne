@@ -31,7 +31,10 @@ func mainForm() *fyne.Container {
 	var task1, task2 taskType
 	task1.Create("Go test", ComputerStuff)
 	task2.Create("Йога", Housework)
-	barBox := container.NewVBox(goal1.Box, goal2.Box, goal3.Box, task1.Box, task2.Box)
+
+	var notes noteType
+	notes.Create("Go slice", ComputerStuff)
+	barBox := container.NewVBox(goal1.Box, goal2.Box, goal3.Box, task1.Box, task2.Box, notes.TextWidget)
 
 	l2 := widget.NewLabel("buttons")
 	split := container.NewHSplit(barBox, l2)
@@ -154,14 +157,19 @@ func (t *taskType) Create(name string, status taskStatus) {
 
 // noteType data
 type noteType struct {
-	Name string
-
-	Label *widget.Label
+	Name       string
+	Status     taskStatus
+	TextWidget *canvas.Text
 	// Button *widget.Button
 	// Box    *fyne.Container
 }
 
-func (t *noteType) Create(name string) {
+func (t *noteType) Create(name string, status taskStatus) {
 	t.Name = name
-	t.Label = widget.NewLabel(name)
+	t.Status = status
+	color := GetColorOfStatus(t.Status)
+
+	t.TextWidget = canvas.NewText(name, color)
+	// t.TextWidget = 14
+	t.TextWidget.TextStyle.Italic = true
 }
