@@ -27,14 +27,22 @@ func mainForm() *fyne.Container {
 	goal1.Create("Читать ITM:", 300)
 	goal2.Create("Читать ENG:", 1300)
 	goal3.Create("Перебрать тетради:", 15)
+	addGoal := widget.NewButton("New goal", nil)
+	goalBox := container.NewVBox(goal1.Box, goal2.Box, goal3.Box, addGoal)
 
 	var task1, task2 taskType
 	task1.Create("Go test", ComputerStuff)
 	task2.Create("Йога", Housework)
+	addTask := widget.NewButton("New task", nil)
+	taskBox := container.NewVBox(widget.NewLabel("Задачи на сегдня:"), task1.Box, task2.Box, addTask)
 
-	var notes noteType
-	notes.Create("Go slice", ComputerStuff)
-	barBox := container.NewVBox(goal1.Box, goal2.Box, goal3.Box, task1.Box, task2.Box, notes.TextWidget)
+	var note1, note2 noteType
+	note1.Create("Go slice", ComputerStuff)
+	note2.Create("3 упражнения", Housework)
+	addNote := widget.NewButton("New note", nil)
+	noteBox := container.NewVBox(note1.TextWidget, note2.TextWidget, addNote)
+
+	barBox := container.NewVBox(goalBox, taskBox, noteBox)
 
 	l2 := widget.NewLabel("buttons")
 	split := container.NewHSplit(barBox, l2)
@@ -78,12 +86,11 @@ func (g *goalType) Create(name string, max float64) {
 }
 
 // ----------------------------------------------------------------------------
-//
-//	todo
-//
+//										todo
 // ----------------------------------------------------------------------------
+
 // var todoSlice []taskType
-// todo: разобрать на файлы
+// todo: разобрать на файлы?
 var (
 	red    = color.NRGBA{R: 255, G: 0, B: 0, A: 255}    // 0: очень срочно!
 	purple = color.NRGBA{R: 184, G: 15, B: 200, A: 255} // 1: срочно
