@@ -28,25 +28,30 @@ func mainForm() *fyne.Container {
 	goal2.Create("Читать ENG:", 1300)
 	goal3.Create("Перебрать тетради:", 15)
 	addGoal := widget.NewButton("New goal", nil)
-	goalBox := container.NewVBox(goal1.Box, goal2.Box, goal3.Box, addGoal)
+	box := container.NewVBox(goal1.Box, goal2.Box, goal3.Box)
+	goalBox := container.NewBorder(box, nil, nil, addGoal)
 
 	var task1, task2 taskType
 	task1.Create("Go test", ComputerStuff)
 	task2.Create("Йога", Housework)
+	box = container.NewVBox(widget.NewLabel("Задачи на сегдня:"), task1.Box, task2.Box) // todo: задачи label ярче
 	addTask := widget.NewButton("New task", nil)
-	taskBox := container.NewVBox(widget.NewLabel("Задачи на сегдня:"), task1.Box, task2.Box, addTask)
+	cleanTask := widget.NewButton("Clean", nil)
+	buttonBox := container.NewHBox(addTask, cleanTask)
+	taskBox := container.NewBorder(box, nil, nil, buttonBox)
 
 	var note1, note2 noteType
 	note1.Create("Go slice", ComputerStuff)
 	note2.Create("3 упражнения", Housework)
+	box = container.NewVBox(widget.NewLabel("Заметки:"), note1.TextWidget, note2.TextWidget)
 	addNote := widget.NewButton("New note", nil)
-	noteBox := container.NewVBox(note1.TextWidget, note2.TextWidget, addNote)
+	cleanAll := widget.NewButton("Clean all", nil) // todo: заменить на удаление по одной
+	buttonBox = container.NewHBox(addNote, cleanAll)
+	noteBox := container.NewBorder(box, nil, nil, buttonBox)
+	// todo: или сделать задача - заметка и тд.
+	// придется добавить прокрутку
 
-	barBox := container.NewVBox(goalBox, taskBox, noteBox)
-
-	l2 := widget.NewLabel("buttons")
-	split := container.NewHSplit(barBox, l2)
-	return container.NewBorder(nil, nil, nil, nil, split)
+	return container.NewVBox(goalBox, taskBox, noteBox)
 }
 
 // ----------------------------------------------------------------------------
@@ -91,25 +96,8 @@ func (g *goalType) Create(name string, max float64) {
 
 // var todoSlice []taskType
 // todo: разобрать на файлы?
-var (
-	red    = color.NRGBA{R: 255, G: 0, B: 0, A: 255}    // 0: очень срочно!
-	purple = color.NRGBA{R: 184, G: 15, B: 200, A: 255} // 1: срочно
-	orange = color.NRGBA{R: 255, G: 50, B: 20, A: 255}  // 2: в приоритете
-	jellow = color.NRGBA{R: 255, G: 230, B: 5, A: 255}  // 3: другое
-	green  = color.NRGBA{R: 0, G: 255, B: 0, A: 255}    // 4: домашние дела
-	blue   = color.NRGBA{R: 0, G: 0, B: 255, A: 255}    // 5: дела за компом (обучение, работа)
-)
 
 type taskStatus int
-
-const (
-	veryImpotant taskStatus = iota
-	Impotant
-	Priority
-	AnotherOne
-	Housework
-	ComputerStuff
-)
 
 // taskType data
 type taskType struct {
@@ -119,29 +107,6 @@ type taskType struct {
 	TextWidget *canvas.Text
 	Box        *fyne.Container
 	// Button *widget.Button
-}
-
-func GetColorOfStatus(status taskStatus) color.NRGBA {
-	var cl color.NRGBA
-
-	switch status {
-	case veryImpotant:
-		cl = red
-	case Impotant:
-		cl = purple
-	case Priority:
-		cl = orange
-	case AnotherOne:
-		cl = jellow
-	case ComputerStuff:
-		cl = blue
-	case Housework:
-		cl = green
-	default:
-		// cl = color.Black
-	}
-	return cl
-
 }
 
 func (t *taskType) Create(name string, status taskStatus) {
@@ -167,6 +132,7 @@ type noteType struct {
 	Name       string
 	Status     taskStatus
 	TextWidget *canvas.Text
+	// todo: добавить удаление или завершение + удаление завершенных
 	// Button *widget.Button
 	// Box    *fyne.Container
 }
@@ -179,4 +145,48 @@ func (t *noteType) Create(name string, status taskStatus) {
 	t.TextWidget = canvas.NewText(name, color)
 	// t.TextWidget = 14
 	t.TextWidget.TextStyle.Italic = true
+}
+
+// ----------------------------------------------------------------------------
+// 										общее
+// ----------------------------------------------------------------------------
+
+var ( // todo: без приоритета - черный, для заметок
+	red    = color.NRGBA{R: 255, G: 0, B: 0, A: 255}    // 0: очень срочно!
+	purple = color.NRGBA{R: 184, G: 15, B: 200, A: 255} // 1: срочно
+	orange = color.NRGBA{R: 255, G: 50, B: 20, A: 255}  // 2: в приоритете
+	jellow = color.NRGBA{R: 255, G: 230, B: 5, A: 255}  // 3: другое
+	green  = color.NRGBA{R: 0, G: 255, B: 0, A: 255}    // 4: домашние дела
+	blue   = color.NRGBA{R: 0, G: 0, B: 255, A: 255}    // 5: дела за компом (обучение, работа)
+)
+
+const (
+	veryImpotant taskStatus = iota
+	Impotant
+	Priority
+	AnotherOne
+	Housework
+	ComputerStuff
+)
+
+func GetColorOfStatus(status taskStatus) color.NRGBA {
+	var cl color.NRGBA
+
+	switch status {
+	case veryImpotant:
+		cl = red
+	case Impotant:
+		cl = purple
+	case Priority:
+		cl = orange
+	case AnotherOne:
+		cl = jellow
+	case ComputerStuff:
+		cl = blue
+	case Housework:
+		cl = green
+	default:
+		// cl = color.Black
+	}
+	return cl
 }
