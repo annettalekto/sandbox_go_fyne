@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -32,13 +33,19 @@ func mainForm() *fyne.Container {
 	goalBox := container.NewBorder(box, nil, nil, addGoal)
 
 	var task1, task2 taskType
+	done := binding.NewFloat()
 	task1.Create("Go test", ComputerStuff)
 	task2.Create("Йога", Housework)
-	box = container.NewVBox(widget.NewLabel("Задачи на сегдня:"), task1.Box, task2.Box) // todo: задачи label ярче
+	pbar := widget.NewProgressBarWithData(done)
+	pbar.Max = 2 // количество задач на сегодня
+	pbar.Min = 1
+	pbar.SetValue(0)
+	box = container.NewVBox(widget.NewLabel("Задачи на сегдня:"), task1.Box, task2.Box, pbar) // todo: задачи label ярче
 	addTask := widget.NewButton("New task", nil)
 	cleanTask := widget.NewButton("Clean", nil)
 	buttonBox := container.NewHBox(addTask, cleanTask)
 	taskBox := container.NewBorder(box, nil, nil, buttonBox)
+	// см сколько задач -> добавить прогресс бар на сегодня, прибавлять по завершению задач
 
 	var note1, note2 noteType
 	note1.Create("Go slice", ComputerStuff)
