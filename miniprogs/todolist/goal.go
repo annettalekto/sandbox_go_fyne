@@ -31,6 +31,7 @@ func (g *goalType) Create(name, note string, max float64) {
 	g.Max = max
 
 	label := widget.NewLabel(g.Name)
+	labelBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(150, 10)), label)
 
 	g.ProgressBar = widget.NewProgressBar()
 	g.ProgressBar.Max = g.Max
@@ -45,7 +46,7 @@ func (g *goalType) Create(name, note string, max float64) {
 		g.ChangeGoalForm()
 	})
 	buttonBox := container.NewHBox(g.PlusButton, g.ChangeButton)
-	g.Box = container.NewBorder(nil, nil, label, buttonBox, g.ProgressBar)
+	g.Box = container.NewBorder(nil, nil, labelBox, buttonBox, g.ProgressBar)
 }
 
 // ChangeValue прибавить прогресс

@@ -17,7 +17,7 @@ import (
 func main() {
 	a := app.New()
 	w := a.NewWindow("TODO List")
-	w.Resize(fyne.NewSize(800, 600))
+	w.Resize(fyne.NewSize(600, 600))
 	w.CenterOnScreen()
 	w.SetMaster()
 
@@ -45,9 +45,9 @@ func mainForm() *fyne.Container {
 	addGoalButton := widget.NewButton("New goal", func() {
 		newGoalForm(goalsBox)
 	})
-	b := container.New(layout.NewGridWrapLayout(fyne.NewSize(750, 250)), container.NewVScroll(goalsBox))
+	b := container.New(layout.NewGridWrapLayout(fyne.NewSize(590, 250)), container.NewVScroll(goalsBox))
 	goalsAllBox := container.NewBorder(b, nil, nil, addGoalButton)
-
+	// todo: форма для изменения goals ...
 	//-----------------
 
 	var task1, task2 taskType
