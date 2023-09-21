@@ -31,9 +31,9 @@ func (g *goalType) Create(name, note string, max float64) {
 	g.Max = max
 
 	// label := widget.NewLabel(g.Name)
-	text := canvas.NewText(g.Name, color.Black)
+	text := canvas.NewText("     "+g.Name, color.Black) // без пробелов выходит за прогресс бар слева
 	text.TextStyle.Italic = true
-	textBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(-5, 30)), text) // todo: -5 ??
+	textBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(0, 30)), text)
 
 	g.ProgressBar = widget.NewProgressBar()
 	g.ProgressBar.Max = g.Max
@@ -60,7 +60,7 @@ func (g *goalType) ChangeValue() {
 // ChangeGoalForm форма для изменения парамметров цели
 func (g *goalType) ChangeGoalForm() {
 	w := fyne.CurrentApp().NewWindow("Изменить") // CurrentApp!
-	w.Resize(fyne.NewSize(400, 150))
+	w.Resize(fyne.NewSize(400, 190))
 	w.SetFixedSize(true)
 	w.CenterOnScreen()
 
@@ -77,7 +77,7 @@ func (g *goalType) ChangeGoalForm() {
 
 	maxValueEntry := newNumericalEntry() // установка по нажатию
 	maxValueEntry.SetPlaceHolder(fmt.Sprintf("%v", g.ProgressBar.Value))
-	boxValue := container.NewBorder(nil, nil, widget.NewLabel("Сделано: "), maxValueEntry)
+	boxValue := container.NewBorder(nil, nil, widget.NewLabel("Сделано: "), nil, maxValueEntry)
 
 	doneButton := widget.NewButton("Завершить", func() {
 		// окно с вопросом если не сделано 100%
@@ -87,10 +87,13 @@ func (g *goalType) ChangeGoalForm() {
 		// окно с вопросом
 		// удалить из слайса, файла и формы
 	})
-	buttonBox := container.NewHBox(doneButton, deleteButton)
-	buttonBox = container.NewBorder(nil, nil, nil, buttonBox)
+	okButton := widget.NewButton("Ok", func() {
 
-	box := container.NewVBox(nameBox, noteEntry, boxValue, buttonBox)
+	})
+	buttonBox := container.NewHBox(deleteButton, doneButton, layout.NewSpacer(), okButton)
+	// buttonBox = container.NewBorder(nil, nil, nil, buttonBox)
+
+	box := container.NewVBox(nameBox, noteEntry, boxValue, widget.NewLabel(""), buttonBox)
 	w.SetContent(box)
 	w.Show() // ShowAndRun -- panic!
 }

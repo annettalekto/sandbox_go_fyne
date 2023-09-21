@@ -46,7 +46,7 @@ var mainFormData mainFormType
 func mainForm() *fyne.Container {
 	// var err error
 
-	text := canvas.NewText("ToDoList", color.Black)
+	text := canvas.NewText("My goals, toDoList, notes", color.Black)
 	text.TextStyle.Monospace = true
 
 	mainFormData.Goals = append(mainFormData.Goals, getGoalsFromFile()...)
