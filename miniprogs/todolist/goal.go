@@ -77,7 +77,8 @@ func (g *goalType) ChangeGoalForm() {
 
 	maxValueEntry := newNumericalEntry() // установка по нажатию
 	maxValueEntry.SetPlaceHolder(fmt.Sprintf("%v", g.ProgressBar.Value))
-	boxValue := container.NewBorder(nil, nil, widget.NewLabel("Сделано: "), nil, maxValueEntry)
+	boxValue := container.NewBorder(nil, nil, widget.NewLabel("Сделано: "),
+		widget.NewLabel(fmt.Sprintf("(из %v)", g.ProgressBar.Max)), maxValueEntry)
 
 	doneButton := widget.NewButton("Завершить", func() {
 		// окно с вопросом если не сделано 100%

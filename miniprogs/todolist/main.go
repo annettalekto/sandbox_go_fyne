@@ -33,6 +33,7 @@ todo:
 Сортировать по приоритету.
 Убрать заметки к каждому пункту
 Заметки - 2-3 блока для заметок. Просто квадрат многострочного поля ввода.
+При сохранении в файл ставить дату(?)
 добавить напоминалку (сообщение по дате)
 будильник?
 */
@@ -46,20 +47,19 @@ var mainFormData mainFormType
 func mainForm() *fyne.Container {
 	// var err error
 
-	text := canvas.NewText("My goals, toDoList, notes", color.Black)
+	// цели
+	text := canvas.NewText("My goals, todo-list, notes", color.Black)
 	text.TextStyle.Monospace = true
 
 	mainFormData.Goals = append(mainFormData.Goals, getGoalsFromFile()...)
 	goalsBox := getGoalsBox(mainFormData.Goals)
-	addGoalButton := widget.NewButton("New goal", func() {
+	addGoalButton := widget.NewButton("Новая цель", func() {
 		newGoalForm(goalsBox)
 	})
 	b := container.NewBorder(nil, nil, nil, addGoalButton, text)
 	goalsAllBox := container.NewVBox(b, goalsBox)
 
-	// todo: форма для изменения goals ...
-	//-----------------
-
+	// сделать
 	var task1, task2 taskType
 	done := binding.NewFloat()
 	task1.Create("Go test", "slice разбор", ComputerStuff)
@@ -68,7 +68,7 @@ func mainForm() *fyne.Container {
 	pbar.Max = 2 // количество задач на сегодня
 	pbar.Min = 1
 	pbar.SetValue(0)
-	box := container.NewVBox(widget.NewLabel("Задачи на сегдня:"), task1.Box, task2.Box, pbar) // todo: задачи label ярче
+	box := container.NewVBox(task1.Box, task2.Box, pbar) // todo: задачи label ярче
 	addTask := widget.NewButton("New task", nil)
 	cleanTask := widget.NewButton("Clean", nil)
 	buttonBox := container.NewHBox(addTask, cleanTask)
@@ -215,47 +215,11 @@ func getGoalsBox(goals []goalType) *fyne.Container {
 //										todo
 // ----------------------------------------------------------------------------
 
-// var todoSlice []taskType
-// todo: разобрать на файлы?
-
-type taskStatus int
-
-// taskType data
-type taskType struct {
-	Name       string
-	Note       string
-	Status     taskStatus
-	Check      *widget.Check
-	NameWidget *canvas.Text
-	NoteWidget *canvas.Text
-	Box        *fyne.Container
-	// Button *widget.Button
-}
-
-func (t *taskType) Create(name, note string, status taskStatus) {
-	t.Name = name
-	t.Note = note
-	t.Status = status
-	cl := GetColorOfStatus(t.Status)
-	t.Check = widget.NewCheck("", nil)
-
-	t.NameWidget = canvas.NewText(name, cl)
-	t.NameWidget.TextSize = 14
-	t.NameWidget.TextStyle.Monospace = true
-
-	t.NoteWidget = canvas.NewText("    ("+note+")", color.Black)
-	t.NoteWidget.TextSize = 10
-	t.NameWidget.TextStyle.Italic = true
-
-	// t.Box = container.NewVBox(container.NewHBox(t.Check, t.NameWidget), t.NoteWidget) // пояснение к задаче снизу
-	t.Box = container.NewHBox(t.Check, t.NameWidget, t.NoteWidget) // пояснение к задаче снизу
-}
-
 // ----------------------------------------------------------------------------
 // 										notes
 // ----------------------------------------------------------------------------
 // var notesSlice []notesType
-
+/*
 // noteType data
 type noteType struct {
 	Name string
@@ -274,48 +238,8 @@ func (t *noteType) Create(name string) {
 	t.TextWidget = canvas.NewText(name, color.Black)
 	t.TextWidget.TextSize = 14
 	t.TextWidget.TextStyle.Italic = true
-}
+}*/
 
 // ----------------------------------------------------------------------------
 // 										общее
 // ----------------------------------------------------------------------------
-
-var ( // todo: без приоритета - черный, для заметок
-	red    = color.NRGBA{R: 255, G: 0, B: 0, A: 255}    // 0: очень срочно!
-	purple = color.NRGBA{R: 184, G: 15, B: 200, A: 255} // 1: срочно
-	orange = color.NRGBA{R: 255, G: 50, B: 20, A: 255}  // 2: в приоритете
-	jellow = color.NRGBA{R: 255, G: 230, B: 5, A: 255}  // 3: другое
-	green  = color.NRGBA{R: 0, G: 255, B: 0, A: 255}    // 4: домашние дела
-	blue   = color.NRGBA{R: 0, G: 0, B: 255, A: 255}    // 5: дела за компом (обучение, работа)
-)
-
-const (
-	veryImpotant taskStatus = iota
-	Impotant
-	Priority
-	AnotherOne
-	Housework
-	ComputerStuff
-)
-
-func GetColorOfStatus(status taskStatus) color.NRGBA {
-	var cl color.NRGBA
-
-	switch status {
-	case veryImpotant:
-		cl = red
-	case Impotant:
-		cl = purple
-	case Priority:
-		cl = orange
-	case AnotherOne:
-		cl = jellow
-	case ComputerStuff:
-		cl = blue
-	case Housework:
-		cl = green
-	default:
-		// cl = color.Black
-	}
-	return cl
-}
