@@ -30,8 +30,10 @@ func (g *goalType) Create(name, note string, max float64) {
 	g.Note = note
 	g.Max = max
 
-	label := widget.NewLabel(g.Name)
-	labelBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(150, 10)), label)
+	// label := widget.NewLabel(g.Name)
+	text := canvas.NewText(g.Name, color.Black)
+	text.TextStyle.Italic = true
+	textBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(-5, 30)), text) // todo: -5 ??
 
 	g.ProgressBar = widget.NewProgressBar()
 	g.ProgressBar.Max = g.Max
@@ -46,7 +48,7 @@ func (g *goalType) Create(name, note string, max float64) {
 		g.ChangeGoalForm()
 	})
 	buttonBox := container.NewHBox(g.PlusButton, g.ChangeButton)
-	g.Box = container.NewBorder(nil, nil, labelBox, buttonBox, g.ProgressBar)
+	g.Box = container.NewBorder(nil, nil, textBox, buttonBox, g.ProgressBar)
 }
 
 // ChangeValue прибавить прогресс

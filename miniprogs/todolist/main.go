@@ -27,8 +27,14 @@ func main() {
 
 /*
 todo:
-// добавить напоминалку (сообщение по дате)
-// будильник?
+цели - заменить на текс, с подходящим цветом, сделать прогресс бар на всю длинну, масштабируемым
+кнопку новая цель на верх, добавить заголовок?
+Задачи -  можно ли сделать в 2 ряда?
+Сортировать по приоритету.
+Убрать заметки к каждому пункту
+Заметки - 2-3 блока для заметок. Просто квадрат многострочного поля ввода.
+добавить напоминалку (сообщение по дате)
+будильник?
 */
 
 type mainFormType struct {
@@ -40,13 +46,17 @@ var mainFormData mainFormType
 func mainForm() *fyne.Container {
 	// var err error
 
+	text := canvas.NewText("ToDoList", color.Black)
+	text.TextStyle.Monospace = true
+
 	mainFormData.Goals = append(mainFormData.Goals, getGoalsFromFile()...)
 	goalsBox := getGoalsBox(mainFormData.Goals)
 	addGoalButton := widget.NewButton("New goal", func() {
 		newGoalForm(goalsBox)
 	})
-	b := container.New(layout.NewGridWrapLayout(fyne.NewSize(590, 250)), container.NewVScroll(goalsBox))
-	goalsAllBox := container.NewBorder(b, nil, nil, addGoalButton)
+	b := container.NewBorder(nil, nil, nil, addGoalButton, text)
+	goalsAllBox := container.NewVBox(b, goalsBox)
+
 	// todo: форма для изменения goals ...
 	//-----------------
 
@@ -65,7 +75,7 @@ func mainForm() *fyne.Container {
 	taskBox := container.NewBorder(box, nil, nil, buttonBox)
 	// см сколько задач -> добавить прогресс бар на сегодня, прибавлять по завершению задач
 
-	/*	var note1, note2 noteType // note: разделиетельные лайблы выделить полосой
+	/*	var note1, note2 noteType // note: разделительные лайблы выделить полосой
 		note1.Create("Незабыть про голицина")
 		note2.Create("вычесать кошку")
 		box = container.NewVBox(widget.NewLabel("Заметки:"), note1.TextWidget, note2.TextWidget)
