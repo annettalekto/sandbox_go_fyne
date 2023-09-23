@@ -26,19 +26,15 @@ const (
 
 // taskType data
 type taskType struct {
-	Name string
-	// Note       string
+	Name       string
 	Status     taskStatus
 	Check      *widget.Check
 	NameWidget *canvas.Text
-	// NoteWidget *canvas.Text
-	Box *fyne.Container
-	// Button *widget.Button
+	Box        *fyne.Container
 }
 
 func (t *taskType) Create(name string, status taskStatus) {
 	t.Name = name
-	// t.Note = note
 	t.Status = status
 	cl := GetColorOfStatus(t.Status)
 	t.Check = widget.NewCheck("", func(b bool) {
@@ -55,12 +51,7 @@ func (t *taskType) Create(name string, status taskStatus) {
 	t.NameWidget.TextSize = 14
 	t.NameWidget.TextStyle.Monospace = true
 
-	// t.NoteWidget = canvas.NewText("    ("+note+")", color.Black)
-	// t.NoteWidget.TextSize = 10
-	// t.NameWidget.TextStyle.Italic = true
-
-	// t.Box = container.NewVBox(container.NewHBox(t.Check, t.NameWidget), t.NoteWidget) // пояснение к задаче снизу
-	t.Box = container.NewHBox(t.Check, t.NameWidget) // пояснение к задаче снизу
+	t.Box = container.NewHBox(t.Check, t.NameWidget)
 }
 
 func getTasksFromFile() []taskType {
@@ -82,8 +73,8 @@ func getTasksFromFile() []taskType {
 
 func taskForm() *fyne.Container {
 
-	TasksDone = binding.NewFloat()
 	Tasks = getTasksFromFile()
+	TasksDone = binding.NewFloat()
 
 	pbar := widget.NewProgressBarWithData(TasksDone)
 	pbar.Max = float64(len(Tasks))
@@ -95,13 +86,33 @@ func taskForm() *fyne.Container {
 		b.Add(t.Box)
 	}
 
-	addTask := widget.NewButton("New task", nil)
-	cleanTask := widget.NewButton("Clean", nil)
+	addTask := widget.NewButton("New task", func() {
+		newTaskForm()
+	})
+	cleanTask := widget.NewButton("Clean", func() {
+
+	})
 	buttonBox := container.NewHBox(addTask, cleanTask)
 
 	box := container.NewVBox(b, pbar, buttonBox)
-	// taskBox := container.NewBorder(box, nil, nil, buttonBox)
 	return box
+}
+
+func newTaskForm() {
+	w := fyne.CurrentApp().NewWindow("Создать") // CurrentApp!
+	w.Resize(fyne.NewSize(500, 200))
+	w.SetFixedSize(true)
+	w.CenterOnScreen()
+
+	nameEntry := widget.NewEntry()
+	b := container.NewBorder(nil, nil, widget.NewLabel("Название: "), nil, nameEntry)
+	okButton := widget.NewButton("Ok", func() {
+		w.Close()
+	})
+
+	box := container.NewBorder(b, nil, nil, okButton)
+	w.SetContent(box)
+	w.Show() // ShowAndRun -- panic!
 }
 
 // ----------------------------------------------------------------------------
