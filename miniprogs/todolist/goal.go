@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"strconv"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -10,6 +11,12 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
+
+type mainFormType struct {
+	Goals []goalType
+}
+
+var mainFormData mainFormType
 
 // var goalSlice []goalType
 
@@ -97,4 +104,114 @@ func (g *goalType) ChangeGoalForm() {
 	box := container.NewVBox(nameBox, noteEntry, boxValue, widget.NewLabel(""), buttonBox)
 	w.SetContent(box)
 	w.Show() // ShowAndRun -- panic!
+}
+
+func goalForm() *fyne.Container {
+
+	text := canvas.NewText("My goals, todo-list, notes", color.Black)
+	text.TextStyle.Monospace = true
+
+	mainFormData.Goals = append(mainFormData.Goals, getGoalsFromFile()...)
+	goalsBox := getGoalsBox(mainFormData.Goals)
+	addGoalButton := widget.NewButton("Новая цель", func() {
+		createGoalForm(goalsBox)
+	})
+	b := container.NewBorder(nil, nil, nil, addGoalButton, text)
+	return container.NewVBox(b, goalsBox)
+}
+
+func getGoalsFromFile() []goalType { // todo: File!
+	var goal1, goal2, goal3 goalType
+	goal1.Create("Читать ITM:", "", 300)
+	goal2.Create("Читать ENG:", "", 1300)
+	goal3.Create("Перебрать тетради:", "", 15)
+	var goals []goalType
+	goals = append(goals, goal1, goal2, goal3)
+	return goals
+}
+
+func createGoalForm(goalsBox *fyne.Container) {
+
+	w := fyne.CurrentApp().NewWindow("Создать") // CurrentApp!
+	w.Resize(fyne.NewSize(500, 200))
+	w.SetFixedSize(true)
+	w.CenterOnScreen()
+
+	var err error
+	var name, note string // todo: как передать данные
+	var max int
+	errorLabel := widget.NewLabel("...") // вывод ошибок
+
+	nameStr := "Название"
+	nameEntry := widget.NewEntry()
+	noteStr := "Примечание"
+	noteEntry := widget.NewEntry()
+	maxValueStr := "Максимальноe число задач"
+	maxValueEntry := newNumericalEntry()
+
+	grid := container.NewGridWithColumns(2,
+		widget.NewLabel(nameStr+": "), nameEntry,
+		widget.NewLabel(noteStr+": "), noteEntry,
+		widget.NewLabel(maxValueStr+": "), maxValueEntry,
+	)
+
+	buttonOk := widget.NewButton("OK", func() {
+		name = nameEntry.Text
+		if name == "" {
+			err = fmt.Errorf(fmt.Sprintf("Поле ввода \"%s\" не может быть пустым", nameStr))
+			errorLabel.Text = err.Error()
+			errorLabel.Refresh()
+			return
+		}
+		note = noteEntry.Text
+		maxStr := maxValueEntry.Text
+		if maxStr == "" {
+			err = fmt.Errorf("поле ввода \"%s\" не может быть пустым", maxValueStr)
+			errorLabel.Text = err.Error()
+			errorLabel.Refresh()
+			return
+		}
+		max, err = strconv.Atoi(maxStr)
+		if err != nil {
+			err = fmt.Errorf("ошибка в поле ввода \"%s\"", maxValueStr)
+			errorLabel.Text = err.Error()
+			errorLabel.Refresh()
+			return
+		}
+		if max <= 0 {
+			err = fmt.Errorf("\"%s\" должно быть меньше нуля", maxValueStr)
+			errorLabel.Text = err.Error()
+			errorLabel.Refresh()
+			return
+		}
+		if max > 1000000 { //
+			err = fmt.Errorf("\"%s\" слишком большое (более 1 000 000)", maxValueStr)
+			errorLabel.Text = err.Error()
+			errorLabel.Refresh()
+			return
+		}
+		errorLabel.Text = "ок"
+		var g goalType
+		g.Create(name, note, float64(max))
+		mainFormData.Goals = append(mainFormData.Goals, g)
+		goalsBox.Add(g.Box)
+		w.Close()
+	})
+	buttonBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(80, 30)), buttonOk) // size
+	buttonBox = container.NewBorder(nil, nil, nil, buttonBox, nil)                       // left
+	box := container.NewVBox(grid, buttonBox, errorLabel)
+
+	w.SetContent(box)
+	w.Show() // ShowAndRun -- panic!
+}
+
+func getGoalsBox(goals []goalType) *fyne.Container {
+
+	// note: при выводе сортировать как то?
+	box := container.NewVBox()
+	for _, g := range goals {
+		box.Add(g.Box)
+	}
+	//box = container.New(layout.NewGridWrapLayout(fyne.NewSize(780, 200)), container.NewVScroll(box))
+	return box
 }

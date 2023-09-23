@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -43,7 +44,6 @@ func (t *taskType) Create(name string, status taskStatus) {
 			TasksDone.Set(v + 1)
 		} else {
 			TasksDone.Set(v - 1)
-
 		}
 	})
 
@@ -87,32 +87,47 @@ func taskForm() *fyne.Container {
 	}
 
 	addTask := widget.NewButton("New task", func() {
-		newTaskForm()
+		createTaskForm()
 	})
 	cleanTask := widget.NewButton("Clean", func() {
 
 	})
+
 	buttonBox := container.NewHBox(addTask, cleanTask)
 
 	box := container.NewVBox(b, pbar, buttonBox)
 	return box
 }
 
-func newTaskForm() {
-	w := fyne.CurrentApp().NewWindow("Создать") // CurrentApp!
-	w.Resize(fyne.NewSize(500, 200))
+func createTaskForm() { // или расположить на главной форме entry
+	w := fyne.CurrentApp().NewWindow("Создать")
+	w.Resize(fyne.NewSize(400, 100))
 	w.SetFixedSize(true)
 	w.CenterOnScreen()
 
 	nameEntry := widget.NewEntry()
 	b := container.NewBorder(nil, nil, widget.NewLabel("Название: "), nil, nameEntry)
+
+	priority := []string{"очень срочно!", "срочно", "в приоритете", "другое", "домашние дела", "дела за компом"}
+	selectPriority := widget.NewSelect(priority, func(s string) {
+	})
+	selectPriority.SetSelectedIndex(5)
+
 	okButton := widget.NewButton("Ok", func() {
+		if nameEntry.Text == "" {
+			nameEntry.SetPlaceHolder("Сюда название, пожалуйста")
+			return
+		}
+		var t taskType
+		t.Create(nameEntry.Text, ComputerStuff)
 		w.Close()
 	})
+	buttonBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(80, 40)), okButton)
+	selectBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(250, 40)), selectPriority)
 
-	box := container.NewBorder(b, nil, nil, okButton)
+	box := container.NewBorder(b, nil, nil, buttonBox, selectBox)
 	w.SetContent(box)
-	w.Show() // ShowAndRun -- panic!
+	w.Show()
 }
 
 // ----------------------------------------------------------------------------
