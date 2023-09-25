@@ -69,7 +69,7 @@ func taskForm() *fyne.Container {
 	pbar.SetValue(0)
 
 	tasksBox := container.NewGridWithColumns(2)
-	for _, t := range Tasks {
+	for _, t := range Tasks { // + сортировку и вынести в отд. ф.
 		tasksBox.Add(t.Box)
 	}
 
@@ -93,13 +93,12 @@ func addTaskForm(tb *fyne.Container) { // или расположить на г�
 	w.CenterOnScreen()
 
 	nameEntry := widget.NewEntry()
-	b := container.NewBorder(nil, nil, widget.NewLabel("Название: "), nil, nameEntry)
+	nameBox := container.NewBorder(nil, nil, widget.NewLabel("Название: "), nil, nameEntry)
 
-	priority := []string{"срочно!", "важно", "другое", "идти", "дом", "комп"}
-	selectPriority := widget.NewSelect(priority, func(s string) {
-		//
-	})
-	selectPriority.SetSelected(priority[5])
+	// widget select какой то баг: обрезаются слова в версии v2.4.0, но в v2.3.4 этого нет
+	priority := []string{"комп    ", "дом     ", "идти     ", "другое     ", "важно     ", "срочно     "}
+	selectPriority := widget.NewSelect(priority, func(s string) {})
+	selectPriority.SetSelected(priority[0])
 
 	okButton := widget.NewButton("Ok", func() {
 		if nameEntry.Text == "" {
@@ -112,10 +111,10 @@ func addTaskForm(tb *fyne.Container) { // или расположить на г�
 		tb.Add(t.Box)
 		w.Close()
 	})
-	buttonBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(80, 40)), okButton)
-	selectBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(300, 40)), selectPriority)
+	buttonBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(80, 35)), okButton)
+	selectBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(300, 35)), selectPriority)
+	box := container.NewBorder(nameBox, nil, nil, buttonBox, selectBox)
 
-	box := container.NewBorder(b, nil, nil, buttonBox, selectBox)
 	w.SetContent(box)
 	w.Show()
 }
@@ -180,17 +179,17 @@ func getStatus(n int) taskStatus {
 
 	switch n {
 	case 0:
-		st = veryImpotant
-	case 1:
-		st = Impotant
-	case 2:
-		st = Priority
-	case 3:
-		st = AnotherOne
-	case 4:
-		st = ComputerStuff
-	case 5:
 		st = Housework
+	case 1:
+		st = ComputerStuff
+	case 2:
+		st = AnotherOne
+	case 3:
+		st = Priority
+	case 4:
+		st = Impotant
+	case 5:
+		st = veryImpotant
 	default:
 		// cl = color.Black
 	}
