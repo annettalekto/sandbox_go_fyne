@@ -12,14 +12,6 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-type mainFormType struct {
-	Goals []goalType
-}
-
-var mainFormData mainFormType
-
-// var goalSlice []goalType
-
 // goalType data
 type goalType struct {
 	Name, Note   string
@@ -31,8 +23,10 @@ type goalType struct {
 	// note: добавить цельное название / описание
 }
 
-// Create for goalType's progressBar
-func (g *goalType) Create(name, note string, max float64) {
+var goalSlice []goalType
+
+// Init for goalType's progressBar
+func (g *goalType) Init(name, note string, max float64) {
 	g.Name = name
 	g.Note = note
 	g.Max = max
@@ -58,8 +52,8 @@ func (g *goalType) Create(name, note string, max float64) {
 	g.Box = container.NewBorder(nil, nil, textBox, buttonBox, g.ProgressBar)
 }
 
-// ChangeValue прибавить прогресс
-func (g *goalType) ChangeValue() {
+// IncrementProgress прибавить прогресс
+func (g *goalType) IncrementProgress() {
 	g.ProgressBar.Value++
 	g.ProgressBar.Refresh()
 }
@@ -106,31 +100,25 @@ func (g *goalType) ChangeGoalForm() {
 	w.Show() // ShowAndRun -- panic!
 }
 
+// ----------------------------------------------------------------------------
+// 									goal form
+// ----------------------------------------------------------------------------
+
 func goalForm() *fyne.Container {
 
 	text := canvas.NewText("My goals, todo-list, notes", color.Black)
 	text.TextStyle.Monospace = true
 
-	mainFormData.Goals = append(mainFormData.Goals, getGoalsFromFile()...)
-	goalsBox := getGoalsBox(mainFormData.Goals)
+	goalSlice = append(goalSlice, readGoalsFromFile()...)
+	goalsBox := createGoalsBox(goalSlice)
 	addGoalButton := widget.NewButton("Новая цель", func() {
-		createGoalForm(goalsBox)
+		newGoalForm(goalsBox)
 	})
 	b := container.NewBorder(nil, nil, nil, addGoalButton, text)
 	return container.NewVBox(b, goalsBox)
 }
 
-func getGoalsFromFile() []goalType { // todo: File!
-	var goal1, goal2, goal3 goalType
-	goal1.Create("Читать ITM:", "", 300)
-	goal2.Create("Читать ENG:", "", 1300)
-	goal3.Create("Перебрать тетради:", "", 15)
-	var goals []goalType
-	goals = append(goals, goal1, goal2, goal3)
-	return goals
-}
-
-func createGoalForm(goalsBox *fyne.Container) {
+func newGoalForm(goalsBox *fyne.Container) {
 
 	w := fyne.CurrentApp().NewWindow("Создать") // CurrentApp!
 	w.Resize(fyne.NewSize(500, 200))
@@ -192,8 +180,8 @@ func createGoalForm(goalsBox *fyne.Container) {
 		}
 		errorLabel.Text = "ок"
 		var g goalType
-		g.Create(name, note, float64(max))
-		mainFormData.Goals = append(mainFormData.Goals, g)
+		g.Init(name, note, float64(max))
+		goalSlice = append(goalSlice, g)
 		goalsBox.Add(g.Box)
 		w.Close()
 	})
@@ -205,7 +193,7 @@ func createGoalForm(goalsBox *fyne.Container) {
 	w.Show() // ShowAndRun -- panic!
 }
 
-func getGoalsBox(goals []goalType) *fyne.Container {
+func createGoalsBox(goals []goalType) *fyne.Container {
 
 	// note: при выводе сортировать как то?
 	box := container.NewVBox()
@@ -214,4 +202,14 @@ func getGoalsBox(goals []goalType) *fyne.Container {
 	}
 	//box = container.New(layout.NewGridWrapLayout(fyne.NewSize(780, 200)), container.NewVScroll(box))
 	return box
+}
+
+func readGoalsFromFile() []goalType { // todo: File!
+	var goal1, goal2, goal3 goalType
+	goal1.Init("Читать ITM:", "", 300)
+	goal2.Init("Читать ENG:", "", 1300)
+	goal3.Init("Перебрать тетради:", "", 15)
+	var goals []goalType
+	goals = append(goals, goal1, goal2, goal3)
+	return goals
 }

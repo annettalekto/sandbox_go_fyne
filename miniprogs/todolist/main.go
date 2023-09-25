@@ -19,15 +19,13 @@ func main() {
 
 /*
 todo:
-цели - заменить на текс, с подходящим цветом, сделать прогресс бар на всю длинну, масштабируемым
-кнопку новая цель на верх, добавить заголовок?
-Задачи -  можно ли сделать в 2 ряда?
+цвет/приоритет map?
 Сортировать по приоритету.
-Убрать заметки к каждому пункту
 Заметки - 2-3 блока для заметок. Просто квадрат многострочного поля ввода.
 При сохранении в файл ставить дату(?)
 добавить напоминалку (сообщение по дате)
 будильник?
+Фон - цветом зоны и заголовок выделить
 */
 
 func mainForm() *fyne.Container {
@@ -54,12 +52,12 @@ func mainForm() *fyne.Container {
 		for range sec.C {
 			// отладить
 			debug.SetText("")
-			for i, g := range mainFormData.Goals {
+			for i, g := range goalSlice {
 				s := fmt.Sprintf("%d: %v ", i, g.Name)
 				debug.Append(s)
 			}
 			// обновление элементов
-			goalsBox = getGoalsBox(mainFormData.Goals)
+			goalsBox = getGoalsBox(goalSlice)
 			// goalsBox.Refresh()
 			// goalsAllBox = container.NewBorder(goalsBox, nil, nil, addGoalButton)
 			// goalsAllBox.Refresh()

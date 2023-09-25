@@ -11,19 +11,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-var Tasks []taskType
-var TasksDone binding.Float
-
 type taskStatus int
-
-const (
-	veryImpotant taskStatus = iota
-	Impotant
-	Priority
-	AnotherOne
-	Housework
-	ComputerStuff
-)
 
 // taskType data
 type taskType struct {
@@ -34,10 +22,22 @@ type taskType struct {
 	Box        *fyne.Container
 }
 
-func (t *taskType) Create(name string, status taskStatus) {
+var Tasks []taskType
+var TasksDone binding.Float
+
+const (
+	veryImpotant taskStatus = iota
+	Impotant
+	Priority
+	AnotherOne
+	Housework
+	ComputerStuff
+)
+
+func (t *taskType) Init(name string, status taskStatus) {
 	t.Name = name
 	t.Status = status
-	cl := GetColorOfStatus(t.Status)
+	cl := getColorOfStatus(t.Status)
 	t.Check = widget.NewCheck("", func(b bool) {
 		v, _ := TasksDone.Get()
 		if b {
@@ -54,26 +54,13 @@ func (t *taskType) Create(name string, status taskStatus) {
 	t.Box = container.NewHBox(t.Check, t.NameWidget)
 }
 
-func getTasksFromFile() []taskType {
-	var tasks []taskType
-
-	for i := 0; i <= 10; i++ {
-		var temp taskType
-		temp.Create("aaa", Impotant)
-		tasks = append(tasks, temp)
-	}
-	for i := 0; i <= 10; i++ {
-		var temp taskType
-		temp.Create("bbb", ComputerStuff)
-		tasks = append(tasks, temp)
-	}
-
-	return tasks
-}
+// ----------------------------------------------------------------------------
+// 									todo form
+// ----------------------------------------------------------------------------
 
 func taskForm() *fyne.Container {
 
-	Tasks = getTasksFromFile()
+	Tasks = readTasksFromFile()
 	TasksDone = binding.NewFloat()
 
 	pbar := widget.NewProgressBarWithData(TasksDone)
@@ -81,13 +68,13 @@ func taskForm() *fyne.Container {
 	pbar.Min = 0
 	pbar.SetValue(0)
 
-	b := container.NewGridWithColumns(2)
+	tasksBox := container.NewGridWithColumns(2)
 	for _, t := range Tasks {
-		b.Add(t.Box)
+		tasksBox.Add(t.Box)
 	}
 
 	addTask := widget.NewButton("New task", func() {
-		createTaskForm()
+		addTaskForm(tasksBox)
 	})
 	cleanTask := widget.NewButton("Clean", func() {
 
@@ -95,11 +82,11 @@ func taskForm() *fyne.Container {
 
 	buttonBox := container.NewHBox(addTask, cleanTask)
 
-	box := container.NewVBox(b, pbar, buttonBox)
+	box := container.NewVBox(tasksBox, pbar, buttonBox)
 	return box
 }
 
-func createTaskForm() { // или расположить на главной форме entry
+func addTaskForm(tb *fyne.Container) { // или расположить на главной форме entry
 	w := fyne.CurrentApp().NewWindow("Создать")
 	w.Resize(fyne.NewSize(400, 100))
 	w.SetFixedSize(true)
@@ -108,10 +95,11 @@ func createTaskForm() { // или расположить на главной ф�
 	nameEntry := widget.NewEntry()
 	b := container.NewBorder(nil, nil, widget.NewLabel("Название: "), nil, nameEntry)
 
-	priority := []string{"очень срочно!", "срочно", "в приоритете", "другое", "домашние дела", "дела за компом"}
+	priority := []string{"срочно!", "важно", "другое", "идти", "дом", "комп"}
 	selectPriority := widget.NewSelect(priority, func(s string) {
+		//
 	})
-	selectPriority.SetSelectedIndex(5)
+	selectPriority.SetSelected(priority[5])
 
 	okButton := widget.NewButton("Ok", func() {
 		if nameEntry.Text == "" {
@@ -119,15 +107,35 @@ func createTaskForm() { // или расположить на главной ф�
 			return
 		}
 		var t taskType
-		t.Create(nameEntry.Text, ComputerStuff)
+		t.Init(nameEntry.Text, getStatus(selectPriority.SelectedIndex()))
+		Tasks = append(Tasks, t)
+		tb.Add(t.Box)
 		w.Close()
 	})
 	buttonBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(80, 40)), okButton)
-	selectBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(250, 40)), selectPriority)
+	selectBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(300, 40)), selectPriority)
 
 	box := container.NewBorder(b, nil, nil, buttonBox, selectBox)
 	w.SetContent(box)
 	w.Show()
+}
+
+// func readTasksFromFile() []taskType {
+func readTasksFromFile() []taskType {
+	var tasks []taskType
+
+	for i := 0; i <= 10; i++ {
+		var temp taskType
+		temp.Init("aaa", Impotant)
+		tasks = append(tasks, temp)
+	}
+	for i := 0; i <= 10; i++ {
+		var temp taskType
+		temp.Init("bbb", ComputerStuff)
+		tasks = append(tasks, temp)
+	}
+
+	return tasks
 }
 
 // ----------------------------------------------------------------------------
@@ -144,7 +152,8 @@ var ( // todo: без приоритета - черный, для заметок
 	blue   = color.NRGBA{R: 0, G: 0, B: 255, A: 255}    // 5: дела за компом (обучение, работа)
 )
 
-func GetColorOfStatus(status taskStatus) color.NRGBA {
+// todo: map?
+func getColorOfStatus(status taskStatus) color.NRGBA {
 	var cl color.NRGBA
 
 	switch status {
@@ -164,4 +173,26 @@ func GetColorOfStatus(status taskStatus) color.NRGBA {
 		// cl = color.Black
 	}
 	return cl
+}
+
+func getStatus(n int) taskStatus {
+	var st taskStatus
+
+	switch n {
+	case 0:
+		st = veryImpotant
+	case 1:
+		st = Impotant
+	case 2:
+		st = Priority
+	case 3:
+		st = AnotherOne
+	case 4:
+		st = ComputerStuff
+	case 5:
+		st = Housework
+	default:
+		// cl = color.Black
+	}
+	return st
 }
