@@ -74,7 +74,7 @@ func taskForm() *fyne.Container {
 	}
 
 	addTask := widget.NewButton("New task", func() {
-		addTaskForm(tasksBox)
+		addTaskForm(tasksBox, pbar)
 	})
 	cleanTask := widget.NewButton("Clean", func() {
 
@@ -86,7 +86,7 @@ func taskForm() *fyne.Container {
 	return box
 }
 
-func addTaskForm(tb *fyne.Container) { // или расположить на главной форме entry
+func addTaskForm(tb *fyne.Container, pbar *widget.ProgressBar) { // или расположить на главной форме entry
 	w := fyne.CurrentApp().NewWindow("Создать")
 	w.Resize(fyne.NewSize(400, 100))
 	w.SetFixedSize(true)
@@ -109,6 +109,8 @@ func addTaskForm(tb *fyne.Container) { // или расположить на г�
 		t.Init(nameEntry.Text, getStatus(selectPriority.SelectedIndex()))
 		Tasks = append(Tasks, t)
 		tb.Add(t.Box)
+		pbar.Max = pbar.Max + 1
+		pbar.Refresh()
 		w.Close()
 	})
 	buttonBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(80, 35)), okButton)
@@ -123,12 +125,12 @@ func addTaskForm(tb *fyne.Container) { // или расположить на г�
 func readTasksFromFile() []taskType {
 	var tasks []taskType
 
-	for i := 0; i <= 10; i++ {
+	for i := 0; i <= 2; i++ {
 		var temp taskType
 		temp.Init("aaa", Impotant)
 		tasks = append(tasks, temp)
 	}
-	for i := 0; i <= 10; i++ {
+	for i := 0; i <= 2; i++ {
 		var temp taskType
 		temp.Init("bbb", ComputerStuff)
 		tasks = append(tasks, temp)
