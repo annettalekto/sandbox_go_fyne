@@ -13,7 +13,7 @@ import (
 )
 
 // goalType data
-type goalType struct {
+type goalType struct { // todo: удалить лишнее
 	Name, Note   string
 	Max          float64
 	ProgressBar  *widget.ProgressBar // тут value
