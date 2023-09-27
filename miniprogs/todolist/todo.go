@@ -104,6 +104,17 @@ func addTaskForm(tb *fyne.Container, pbar *widget.ProgressBar) { // или ра�
 	w.Show()
 }
 
+// Чтобы удалить элемент из средины среза, сохранив порядок оставш ихся элем ен­ тов, используйте функцию с о р у  для перен оса ‘“вниз’' на одну позицию  элементов с более высокими номерами:
+// func remove(slice []int, i int) []int {
+// 	copy(slice[i:], slice[i+1:])
+// 	return slice[:len(slice)1]
+// }
+// не сохраняя порядок
+// func remove(slice []int, i int) []int {
+// 	slice[i] = slice[len(slice)1]
+// 	return slice[:len(slice)1]
+// }
+
 // func readTasksFromFile() []taskType {
 func readTasksFromFile() []taskType {
 	var tasks []taskType
