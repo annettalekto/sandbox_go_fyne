@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -11,7 +13,8 @@ import (
 
 // taskType data
 type taskType struct {
-	Box *fyne.Container
+	Check *widget.Check
+	Box   *fyne.Container
 }
 
 var Tasks []taskType
@@ -19,7 +22,7 @@ var TasksDone binding.Float
 
 func (t *taskType) Init(name string, priotity taskPriority) {
 
-	check := widget.NewCheck("", func(b bool) {
+	t.Check = widget.NewCheck("", func(b bool) {
 		v, _ := TasksDone.Get()
 		if b {
 			TasksDone.Set(v + 1)
@@ -32,7 +35,7 @@ func (t *taskType) Init(name string, priotity taskPriority) {
 	nameWidget.TextSize = 14
 	nameWidget.TextStyle.Monospace = true
 
-	t.Box = container.NewHBox(check, nameWidget)
+	t.Box = container.NewHBox(t.Check, nameWidget)
 }
 
 // ----------------------------------------------------------------------------
@@ -58,14 +61,32 @@ func taskForm() *fyne.Container {
 		addTaskForm(tasksBox, pbar)
 	})
 	cleanTask := widget.NewButton("Удалить отмеченные", func() {
-		// tasksBox
-		// Tasks
+		// checked := make([]int, len(Tasks))
+		for i, t := range Tasks {
+			if t.Check.Checked { // если отмеченный
+				// checked = append(checked, i)
+				tasksBox.Remove(t.Box)
+				Tasks = removeTask(Tasks, i)
+			}
+		}
+		// удалить из среза
+		// for _, i := range checked {
+		// }
+		fmt.Println(Tasks)
+
+		// tasksBox+
+		// Tasks+
 		// file
 	})
 
 	buttonBox := container.NewBorder(nil, nil, cleanTask, addTask)
 	box := container.NewVBox(tasksBox, pbar, buttonBox)
 	return box
+}
+
+func removeTask(slice []taskType, i int) []taskType {
+	copy(slice[i:], slice[i+1:])
+	return slice[:len(slice)-1]
 }
 
 func addTaskForm(tb *fyne.Container, pbar *widget.ProgressBar) { // или расположить на главной форме entry
@@ -104,15 +125,17 @@ func addTaskForm(tb *fyne.Container, pbar *widget.ProgressBar) { // или ра�
 	w.Show()
 }
 
-// Чтобы удалить элемент из средины среза, сохранив порядок оставш ихся элем ен­ тов, используйте функцию с о р у  для перен оса ‘“вниз’' на одну позицию  элементов с более высокими номерами:
-// func remove(slice []int, i int) []int {
-// 	copy(slice[i:], slice[i+1:])
-// 	return slice[:len(slice)1]
-// }
+// Чтобы удалить элемент из средины среза, сохранив порядок оставш ихся элем ен­ тов,
+// используйте функцию с о р у  для перен оса ‘“вниз’' на одну позицию  элементов с более высокими номерами:
+func removeTask1(slice []int, i int) []int {
+	copy(slice[i:], slice[i+1:])
+	return slice[:len(slice)-1]
+}
+
 // не сохраняя порядок
-// func remove(slice []int, i int) []int {
-// 	slice[i] = slice[len(slice)1]
-// 	return slice[:len(slice)1]
+// func remove1(slice []int, i int) []int {
+// 	slice[i] = slice[len(slice)-1]
+// 	return slice[:len(slice)-1]
 // }
 
 // func readTasksFromFile() []taskType {
