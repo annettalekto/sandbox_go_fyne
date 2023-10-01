@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -26,6 +28,9 @@ func (t *taskType) Init(name string, priotity taskPriority) {
 			TasksDone.Set(v + 1)
 		} else {
 			TasksDone.Set(v - 1)
+			if v-1 < 0 {
+				fmt.Println(v)
+			}
 		}
 	})
 
@@ -48,7 +53,6 @@ func taskForm() *fyne.Container {
 	pbar := widget.NewProgressBarWithData(TasksDone)
 	pbar.Max = float64(len(Tasks))
 	pbar.Min = 0
-	pbar.SetValue(0) // TaskDone
 
 	tasksBox := container.NewGridWithColumns(2)
 	for _, t := range Tasks { // + сортировку и вынести в отд. ф.
@@ -72,7 +76,6 @@ func taskForm() *fyne.Container {
 		}
 		pbar.Max = float64(len(Tasks))
 		TasksDone.Set(0)
-		// pbar.SetValue(0)
 		pbar.Refresh()
 	})
 
@@ -139,16 +142,16 @@ func addTaskForm(tb *fyne.Container, pbar *widget.ProgressBar) { // или ра�
 func readTasksFromFile() []taskType {
 	var tasks []taskType
 
-	for i := 0; i <= 2; i++ {
-		var temp taskType
-		temp.Init("aaa", Impotant)
-		tasks = append(tasks, temp)
-	}
-	for i := 0; i <= 2; i++ {
-		var temp taskType
-		temp.Init("bbb", ComputerStuff)
-		tasks = append(tasks, temp)
-	}
+	// for i := 0; i <= 2; i++ {
+	// 	var temp taskType
+	// 	temp.Init("aaa", Impotant)
+	// 	tasks = append(tasks, temp)
+	// }
+	// for i := 0; i <= 2; i++ {
+	// 	var temp taskType
+	// 	temp.Init("bbb", ComputerStuff)
+	// 	tasks = append(tasks, temp)
+	// }
 
 	return tasks
 }

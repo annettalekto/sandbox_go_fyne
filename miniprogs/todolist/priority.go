@@ -39,7 +39,6 @@ var colorMap = map[taskPriority]color.NRGBA{
 
 func getPrioritySlice() []string {
 	var priority []string
-	// for _, s := range priorityMap {
 	for i := 0; i < len(priorityMap); i++ {
 		// widget select какой то баг: обрезаются слова в версии v2.4.0, но в v2.3.4 этого нет
 		priority = append(priority, priorityMap[taskPriority(i)]+"           ") // note:???
