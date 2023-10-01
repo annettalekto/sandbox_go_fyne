@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -50,7 +48,7 @@ func taskForm() *fyne.Container {
 	pbar := widget.NewProgressBarWithData(TasksDone)
 	pbar.Max = float64(len(Tasks))
 	pbar.Min = 0
-	pbar.SetValue(0)
+	pbar.SetValue(0) // TaskDone
 
 	tasksBox := container.NewGridWithColumns(2)
 	for _, t := range Tasks { // + сортировку и вынести в отд. ф.
@@ -60,27 +58,22 @@ func taskForm() *fyne.Container {
 	addTask := widget.NewButton("Новая задача", func() {
 		addTaskForm(tasksBox, pbar)
 	})
-	cleanTask := widget.NewButton("Удалить отмеченные", func() {
-		// checked := make([]int, len(Tasks))
 
+	cleanTask := widget.NewButton("Удалить отмеченные", func() {
 		for i := 0; i < len(Tasks); {
 			t := Tasks[i]
-			if t.Check.Checked { // если отмеченный
-				// checked = append(checked, i)
-				tasksBox.Remove(t.Box)
-				Tasks = removeTask(Tasks, i)
+			if t.Check.Checked { // если пункт отмечен, то удалить
+				Tasks = removeTask(Tasks, i) // удалить из среза
+				tasksBox.Remove(t.Box)       // удалить с формы
+				// удалить из файла
 			} else {
 				i++
 			}
 		}
-		// удалить из среза
-		// for _, i := range checked {
-		// }
-		fmt.Println(Tasks)
-
-		// tasksBox+
-		// Tasks+
-		// file
+		pbar.Max = float64(len(Tasks))
+		TasksDone.Set(0)
+		// pbar.SetValue(0)
+		pbar.Refresh()
 	})
 
 	buttonBox := container.NewBorder(nil, nil, cleanTask, addTask)
@@ -131,10 +124,10 @@ func addTaskForm(tb *fyne.Container, pbar *widget.ProgressBar) { // или ра�
 
 // Чтобы удалить элемент из средины среза, сохранив порядок оставш ихся элем ен­ тов,
 // используйте функцию с о р у  для перен оса ‘“вниз’' на одну позицию  элементов с более высокими номерами:
-func removeTask1(slice []int, i int) []int {
-	copy(slice[i:], slice[i+1:])
-	return slice[:len(slice)-1]
-}
+// func removeTask1(slice []int, i int) []int {
+// 	copy(slice[i:], slice[i+1:])
+// 	return slice[:len(slice)-1]
+// }
 
 // не сохраняя порядок
 // func remove1(slice []int, i int) []int {
