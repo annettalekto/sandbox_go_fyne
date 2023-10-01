@@ -62,11 +62,15 @@ func taskForm() *fyne.Container {
 	})
 	cleanTask := widget.NewButton("Удалить отмеченные", func() {
 		// checked := make([]int, len(Tasks))
-		for i, t := range Tasks {
+
+		for i := 0; i < len(Tasks); {
+			t := Tasks[i]
 			if t.Check.Checked { // если отмеченный
 				// checked = append(checked, i)
 				tasksBox.Remove(t.Box)
 				Tasks = removeTask(Tasks, i)
+			} else {
+				i++
 			}
 		}
 		// удалить из среза

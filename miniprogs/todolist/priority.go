@@ -13,19 +13,19 @@ const (
 )
 
 var priorityMap = map[taskPriority]string{
-	Housework:     "дом. дела",
-	ComputerStuff: "комп. дела",
+	Housework:     "домашние дела",
+	ComputerStuff: "за компом",
 	AnotherOne:    "другое",
 	Impotant:      "срочно",
 	VeryImpotant:  "очень срочно",
 }
 
 var (
-	purple = color.NRGBA{R: 184, G: 15, B: 200, A: 255} // 4: очень срочно
-	red    = color.NRGBA{R: 255, G: 0, B: 0, A: 255}    // 3: срочно!
-	jellow = color.NRGBA{R: 255, G: 230, B: 5, A: 255}  // 2: другое
-	blue   = color.NRGBA{R: 0, G: 0, B: 255, A: 255}    // 1: дела за компом (обучение, работа)
-	green  = color.NRGBA{R: 0, G: 255, B: 0, A: 255}    // 0: домашние дела
+	purple = color.NRGBA{R: 184, G: 15, B: 200, A: 255}
+	red    = color.NRGBA{R: 255, G: 0, B: 0, A: 255}
+	jellow = color.NRGBA{R: 255, G: 230, B: 5, A: 255}
+	blue   = color.NRGBA{R: 0, G: 0, B: 255, A: 255}
+	green  = color.NRGBA{R: 0, G: 255, B: 0, A: 255}
 	//orange = color.NRGBA{R: 255, G: 50, B: 20, A: 255}
 )
 
