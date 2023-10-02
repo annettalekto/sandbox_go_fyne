@@ -51,8 +51,9 @@ func taskForm() *fyne.Container {
 	TasksDone = binding.NewFloat()
 
 	pbar := widget.NewProgressBarWithData(TasksDone)
-	pbar.Max = float64(len(Tasks))
-	pbar.Min = 0
+	pbar.Max = 0.1     // вместо 0,
+	pbar.Min = 1       // так не будет ошибки отображения %
+	TasksDone.Set(0.1) // (если поставить нули процент в минус уходит -9465465843%)
 
 	tasksBox := container.NewGridWithColumns(2)
 	for _, t := range Tasks { // + сортировку и вынести в отд. ф.
@@ -74,8 +75,14 @@ func taskForm() *fyne.Container {
 				i++
 			}
 		}
-		pbar.Max = float64(len(Tasks))
-		TasksDone.Set(0)
+		if len(Tasks) == 0 {
+			pbar.Max = 0.1
+			TasksDone.Set(0.1)
+
+		} else {
+			pbar.Max = float64(len(Tasks))
+			TasksDone.Set(0)
+		}
 		pbar.Refresh()
 	})
 
@@ -125,20 +132,6 @@ func addTaskForm(tb *fyne.Container, pbar *widget.ProgressBar) { // или ра�
 	w.Show()
 }
 
-// Чтобы удалить элемент из средины среза, сохранив порядок оставш ихся элем ен­ тов,
-// используйте функцию с о р у  для перен оса ‘“вниз’' на одну позицию  элементов с более высокими номерами:
-// func removeTask1(slice []int, i int) []int {
-// 	copy(slice[i:], slice[i+1:])
-// 	return slice[:len(slice)-1]
-// }
-
-// не сохраняя порядок
-// func remove1(slice []int, i int) []int {
-// 	slice[i] = slice[len(slice)-1]
-// 	return slice[:len(slice)-1]
-// }
-
-// func readTasksFromFile() []taskType {
 func readTasksFromFile() []taskType {
 	var tasks []taskType
 
