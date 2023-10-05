@@ -9,7 +9,7 @@ import (
 func main() {
 	a := app.New()
 	w := a.NewWindow("TODO List")
-	w.Resize(fyne.NewSize(600, 600))
+	w.Resize(fyne.NewSize(600, 200))
 	w.CenterOnScreen()
 	w.SetMaster()
 
@@ -19,6 +19,7 @@ func main() {
 
 /*
 todo:
+задачи:убрать кнопку новая задача. что с контейнером??
 для append функция должна возвращать срез и перезаписывать переменную
 добавить черный цвет к задачам.
 Разделить на вкладки. 3 вкладки цели, задачи, заметки.
@@ -33,8 +34,14 @@ todo:
 
 func mainForm() *fyne.Container {
 
-	goalBox := goalForm()
-	taskBox := taskForm()
+	// goalBox := goalForm()
+	// taskBox := taskForm()
+
+	tabs := container.NewAppTabs(
+		container.NewTabItem("My goals", goalForm()),
+		container.NewTabItem("My tasks", taskForm()),
+	)
+	tabs.SetTabLocation(container.TabLocationTop)
 
 	/*	var note1, note2 noteType // note: разделительные лайблы выделить полосой
 		note1.Create("Незабыть про голицина")
@@ -48,7 +55,9 @@ func mainForm() *fyne.Container {
 		// придется добавить прокрутку
 	*/
 	//debug := widget.NewMultiLineEntry()
-	mainBox := container.NewVBox(goalBox, taskBox /*, noteBox,, debug*/)
+
+	mainBox := container.NewVBox(tabs)
+	// mainBox := container.NewVBox(goalBox, taskBox)
 
 	/*go func() {
 		sec := time.NewTicker(3 * time.Second)

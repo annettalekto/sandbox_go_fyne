@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -25,13 +23,12 @@ func (t *taskType) Init(name string, priotity taskPriority) {
 	t.Check = widget.NewCheck("", func(b bool) {
 		v, _ := TasksDone.Get()
 		if b {
-			TasksDone.Set(v + 1)
+			v += 1
 		} else {
-			TasksDone.Set(v - 1)
-			if v-1 < 0 {
-				fmt.Println(v)
-			}
+			v -= 1
 		}
+		TasksDone.Set(v)
+
 	})
 
 	nameWidget := canvas.NewText(name, getColorOfPriority(priotity))
@@ -46,14 +43,16 @@ func (t *taskType) Init(name string, priotity taskPriority) {
 // ----------------------------------------------------------------------------
 
 func taskForm() *fyne.Container {
+	var box *fyne.Container
 
 	Tasks = readTasksFromFile()
 	TasksDone = binding.NewFloat()
 
+	// pbarInf := widget.NewProgressBarInfinite()
 	pbar := widget.NewProgressBarWithData(TasksDone)
-	pbar.Max = 0.1     // вместо 0,
-	pbar.Min = 1       // так не будет ошибки отображения %
-	TasksDone.Set(0.1) // (если поставить нули процент в минус уходит -9465465843%)
+	pbar.Max = float64(len(Tasks))
+	// pbar.Min = 1
+	// TasksDone.Set(0)
 
 	tasksBox := container.NewGridWithColumns(2)
 	for _, t := range Tasks { // + сортировку и вынести в отд. ф.
@@ -75,19 +74,14 @@ func taskForm() *fyne.Container {
 				i++
 			}
 		}
-		if len(Tasks) == 0 {
-			pbar.Max = 0.1
-			TasksDone.Set(0.1)
-
-		} else {
-			pbar.Max = float64(len(Tasks))
-			TasksDone.Set(0)
-		}
+		pbar.Max = float64(len(Tasks))
 		pbar.Refresh()
+		TasksDone.Set(0)
 	})
 
 	buttonBox := container.NewBorder(nil, nil, cleanTask, addTask)
-	box := container.NewVBox(tasksBox, pbar, buttonBox)
+	box = container.NewVBox(buttonBox, layout.NewSpacer(), tasksBox, layout.NewSpacer(), pbar)
+
 	return box
 }
 
@@ -103,6 +97,7 @@ func addTaskForm(tb *fyne.Container, pbar *widget.ProgressBar) { // или ра�
 	w.CenterOnScreen()
 
 	nameEntry := widget.NewEntry()
+	nameEntry.FocusGained()
 	nameBox := container.NewBorder(nil, nil, widget.NewLabel("Название: "), nil, nameEntry)
 	nameBox = container.NewVBox(nameBox, widget.NewLabel(""))
 
@@ -120,7 +115,7 @@ func addTaskForm(tb *fyne.Container, pbar *widget.ProgressBar) { // или ра�
 		Tasks = append(Tasks, t)
 		tb.Add(t.Box)
 		// file
-		pbar.Max = pbar.Max + 1
+		pbar.Max++
 		pbar.Refresh()
 		w.Close()
 	})
