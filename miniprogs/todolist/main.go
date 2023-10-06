@@ -57,7 +57,7 @@ func mainForm() *fyne.Container {
 	//debug := widget.NewMultiLineEntry()
 
 	mainBox := container.NewVBox(tabs)
-	// mainBox := container.NewVBox(goalBox, taskBox)
+	// mainBox := container.NewVBox(goalBox /*, taskBox*/)
 
 	/*go func() {
 		sec := time.NewTicker(3 * time.Second)

@@ -79,8 +79,11 @@ func taskForm() *fyne.Container {
 		TasksDone.Set(0)
 	})
 
+	notesEntry := widget.NewMultiLineEntry()
+	notesEntry.Wrapping = fyne.TextWrapWord
+
 	buttonBox := container.NewBorder(nil, nil, cleanTask, addTask)
-	box = container.NewVBox(buttonBox, layout.NewSpacer(), tasksBox, layout.NewSpacer(), pbar)
+	box = container.NewVBox(buttonBox, layout.NewSpacer(), tasksBox, notesEntry, pbar)
 
 	return box
 }

@@ -106,20 +106,26 @@ func (g *goalType) ChangeGoalForm() {
 
 func goalForm() *fyne.Container {
 
-	text := canvas.NewText("My goals, todo-list, notes", color.Black)
-	text.TextStyle.Monospace = true
+	// text := canvas.NewText("My goals, todo-list, notes", color.Black)
+	// text.TextStyle.Monospace = true
 
 	goalSlice = append(goalSlice, readGoalsFromFile()...)
 	goalsBox := createGoalsBox(goalSlice)
 	addGoalButton := widget.NewButton("Новая цель", func() {
 		newGoalForm(goalsBox)
 	})
-	b := container.NewBorder(nil, nil, nil, addGoalButton, text)
-	return container.NewVBox(b, goalsBox)
+
+	button := container.NewBorder(nil, nil, nil, addGoalButton)
+
+	notesEntry := widget.NewMultiLineEntry()
+	notesEntry.Wrapping = fyne.TextWrapWord
+
+	// box := container.NewVBox(goalsBox, button)
+	return container.NewBorder(goalsBox, button, nil, nil, notesEntry)
+	// return container.NewVBox(notesEntry)
 }
 
 func newGoalForm(goalsBox *fyne.Container) {
-
 	w := fyne.CurrentApp().NewWindow("Создать") // CurrentApp!
 	w.Resize(fyne.NewSize(500, 200))
 	w.SetFixedSize(true)
