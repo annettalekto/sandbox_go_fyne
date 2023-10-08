@@ -9,17 +9,24 @@ import (
 func main() {
 	a := app.New()
 	w := a.NewWindow("TODO List")
-	w.Resize(fyne.NewSize(600, 200))
+	w.Resize(fyne.NewSize(600, 400))
 	w.CenterOnScreen()
 	w.SetMaster()
 
-	w.SetContent(mainForm())
+	var tabs *container.AppTabs
+	tabs = container.NewAppTabs(
+		container.NewTabItem("My goals", goalForm()),
+		container.NewTabItem("My tasks", taskForm(tabs)),
+	)
+	tabs.SetTabLocation(container.TabLocationBottom)
+
+	w.SetContent(tabs)
 	w.ShowAndRun()
 }
 
 /*
 todo:
-задачи:убрать кнопку новая задача. что с контейнером??
+задачи: убрать кнопку новая задача. что с контейнером??
 для append функция должна возвращать срез и перезаписывать переменную
 добавить черный цвет к задачам.
 Разделить на вкладки. 3 вкладки цели, задачи, заметки.
@@ -32,54 +39,48 @@ todo:
 Фон - цветом зоны и заголовок выделить
 */
 
-func mainForm() *fyne.Container {
+// func mainForm() *fyne.Container {
 
-	// goalBox := goalForm()
-	// taskBox := taskForm()
+// goalBox := goalForm()
+// taskBox := taskForm()
 
-	tabs := container.NewAppTabs(
-		container.NewTabItem("My goals", goalForm()),
-		container.NewTabItem("My tasks", taskForm()),
-	)
-	tabs.SetTabLocation(container.TabLocationTop)
+/*	var note1, note2 noteType // note: разделительные лайблы выделить полосой
+	note1.Create("Незабыть про голицина")
+	note2.Create("вычесать кошку")
+	box = container.NewVBox(widget.NewLabel("Заметки:"), note1.TextWidget, note2.TextWidget)
+	addNote := widget.NewButton("New note", nil)
+	cleanAll := widget.NewButton("Clean all", nil) // todo: заменить на удаление по одной
+	buttonBox = container.NewHBox(addNote, cleanAll)
+	noteBox := container.NewBorder(box, nil, nil, buttonBox)
+	// todo: или сделать задача - заметка и тд.
+	// придется добавить прокрутку
+*/
+//debug := widget.NewMultiLineEntry()
 
-	/*	var note1, note2 noteType // note: разделительные лайблы выделить полосой
-		note1.Create("Незабыть про голицина")
-		note2.Create("вычесать кошку")
-		box = container.NewVBox(widget.NewLabel("Заметки:"), note1.TextWidget, note2.TextWidget)
-		addNote := widget.NewButton("New note", nil)
-		cleanAll := widget.NewButton("Clean all", nil) // todo: заменить на удаление по одной
-		buttonBox = container.NewHBox(addNote, cleanAll)
-		noteBox := container.NewBorder(box, nil, nil, buttonBox)
-		// todo: или сделать задача - заметка и тд.
-		// придется добавить прокрутку
-	*/
-	//debug := widget.NewMultiLineEntry()
+// mainBox := container.NewBorder(nil, nil, nil, nil, tabs)
+// mainBox := container.NewVBox(goalBox /*, taskBox*/)
 
-	mainBox := container.NewVBox(tabs)
-	// mainBox := container.NewVBox(goalBox /*, taskBox*/)
-
-	/*go func() {
-		sec := time.NewTicker(3 * time.Second)
-		for range sec.C {
-			// отладить
-			debug.SetText("")
-			for i, g := range goalSlice {
-				s := fmt.Sprintf("%d: %v ", i, g.Name)
-				debug.Append(s)
-			}
-			// обновление элементов
-			goalsBox = getGoalsBox(goalSlice)
-			// goalsBox.Refresh()
-			// goalsAllBox = container.NewBorder(goalsBox, nil, nil, addGoalButton)
-			// goalsAllBox.Refresh()
-			// mainBox = container.NewVBox(goalsAllBox, taskBox, noteBox, debug)
-			// mainBox.Refresh()
+/*go func() {
+	sec := time.NewTicker(3 * time.Second)
+	for range sec.C {
+		// отладить
+		debug.SetText("")
+		for i, g := range goalSlice {
+			s := fmt.Sprintf("%d: %v ", i, g.Name)
+			debug.Append(s)
 		}
-	}()*/
+		// обновление элементов
+		goalsBox = getGoalsBox(goalSlice)
+		// goalsBox.Refresh()
+		// goalsAllBox = container.NewBorder(goalsBox, nil, nil, addGoalButton)
+		// goalsAllBox.Refresh()
+		// mainBox = container.NewVBox(goalsAllBox, taskBox, noteBox, debug)
+		// mainBox.Refresh()
+	}
+}()*/
 
-	return mainBox
-}
+// return mainBox
+// }
 
 // ----------------------------------------------------------------------------
 // 										notes

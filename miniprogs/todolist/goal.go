@@ -106,23 +106,20 @@ func (g *goalType) ChangeGoalForm() {
 
 func goalForm() *fyne.Container {
 
-	// text := canvas.NewText("My goals, todo-list, notes", color.Black)
-	// text.TextStyle.Monospace = true
+	// goalSlice = append(goalSlice, readGoalsFromFile()...)
+	// goalsBox := createGoalsBox(goalSlice)
+	// addGoalButton := widget.NewButton("Новая цель", func() {
+	// 	newGoalForm(goalsBox)
+	// })
 
-	goalSlice = append(goalSlice, readGoalsFromFile()...)
-	goalsBox := createGoalsBox(goalSlice)
-	addGoalButton := widget.NewButton("Новая цель", func() {
-		newGoalForm(goalsBox)
-	})
-
-	button := container.NewBorder(nil, nil, nil, addGoalButton)
+	// button := container.NewBorder(nil, nil, nil, addGoalButton)
 
 	notesEntry := widget.NewMultiLineEntry()
 	notesEntry.Wrapping = fyne.TextWrapWord
 
 	// box := container.NewVBox(goalsBox, button)
-	return container.NewBorder(goalsBox, button, nil, nil, notesEntry)
-	// return container.NewVBox(notesEntry)
+	// return container.NewBorder(goalsBox, button, nil, nil, notesEntry)
+	return container.NewBorder(nil, nil, nil, nil, notesEntry)
 }
 
 func newGoalForm(goalsBox *fyne.Container) {
@@ -178,7 +175,7 @@ func newGoalForm(goalsBox *fyne.Container) {
 			errorLabel.Refresh()
 			return
 		}
-		if max > 1000000 { //
+		if max > 1000000 {
 			err = fmt.Errorf("\"%s\" слишком большое (более 1 000 000)", maxValueStr)
 			errorLabel.Text = err.Error()
 			errorLabel.Refresh()
@@ -211,11 +208,11 @@ func createGoalsBox(goals []goalType) *fyne.Container {
 }
 
 func readGoalsFromFile() []goalType { // todo: File!
+	var goals []goalType
 	var goal1, goal2, goal3 goalType
 	goal1.Init("Читать ITM:", "", 300)
 	goal2.Init("Читать ENG:", "", 1300)
 	goal3.Init("Перебрать тетради:", "", 15)
-	var goals []goalType
 	goals = append(goals, goal1, goal2, goal3)
 	return goals
 }

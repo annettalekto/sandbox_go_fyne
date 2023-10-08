@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -42,17 +44,16 @@ func (t *taskType) Init(name string, priotity taskPriority) {
 // 									todo form
 // ----------------------------------------------------------------------------
 
-func taskForm() *fyne.Container {
+func taskForm(t *container.AppTabs) *fyne.Container {
 	var box *fyne.Container
 
 	Tasks = readTasksFromFile()
 	TasksDone = binding.NewFloat()
 
-	// pbarInf := widget.NewProgressBarInfinite()
+	pbarInf := widget.NewProgressBarInfinite()
 	pbar := widget.NewProgressBarWithData(TasksDone)
 	pbar.Max = float64(len(Tasks))
-	// pbar.Min = 1
-	// TasksDone.Set(0)
+	pbar.Hide()
 
 	tasksBox := container.NewGridWithColumns(2)
 	for _, t := range Tasks { // + сортировку и вынести в отд. ф.
@@ -83,7 +84,35 @@ func taskForm() *fyne.Container {
 	notesEntry.Wrapping = fyne.TextWrapWord
 
 	buttonBox := container.NewBorder(nil, nil, cleanTask, addTask)
-	box = container.NewVBox(buttonBox, layout.NewSpacer(), tasksBox, notesEntry, pbar)
+	box = container.NewVBox(buttonBox, tasksBox)
+	pb := container.NewVBox(pbarInf, pbar)
+
+	box = container.NewBorder(box, pb, nil, nil, notesEntry)
+
+	go func() {
+		l := len(Tasks)
+		// chg := false
+
+		sec := time.NewTicker(time.Second / 2)
+		for range sec.C {
+			if l != len(Tasks) {
+				l = len(Tasks)
+
+				if l == 0 {
+					pbarInf.Show()
+					pbar.Hide()
+					box.Refresh()
+					// chg = false
+				} else {
+					pbarInf.Hide()
+					pbar.Show()
+					box.Refresh()
+					// chg = false
+				}
+				box.Refresh()
+			}
+		}
+	}()
 
 	return box
 }
@@ -117,6 +146,7 @@ func addTaskForm(tb *fyne.Container, pbar *widget.ProgressBar) { // или ра�
 		t.Init(nameEntry.Text, taskPriority(selectPriority.SelectedIndex()))
 		Tasks = append(Tasks, t)
 		tb.Add(t.Box)
+
 		// file
 		pbar.Max++
 		pbar.Refresh()
