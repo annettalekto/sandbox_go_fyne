@@ -106,20 +106,20 @@ func (g *goalType) ChangeGoalForm() {
 
 func goalForm() *fyne.Container {
 
-	// goalSlice = append(goalSlice, readGoalsFromFile()...)
-	// goalsBox := createGoalsBox(goalSlice)
-	// addGoalButton := widget.NewButton("Новая цель", func() {
-	// 	newGoalForm(goalsBox)
-	// })
+	goalSlice = append(goalSlice, readGoalsFromFile()...)
+	goalsBox := createGoalsBox(goalSlice)
+	addGoalButton := widget.NewButton("Новая цель", func() {
+		newGoalForm(goalsBox)
+	})
 
-	// button := container.NewBorder(nil, nil, nil, addGoalButton)
+	button := container.NewBorder(nil, nil, nil, addGoalButton)
 
 	notesEntry := widget.NewMultiLineEntry()
 	notesEntry.Wrapping = fyne.TextWrapWord
 
-	// box := container.NewVBox(goalsBox, button)
-	// return container.NewBorder(goalsBox, button, nil, nil, notesEntry)
-	return container.NewBorder(nil, nil, nil, nil, notesEntry)
+	box := container.NewVBox(goalsBox, button)
+	return container.NewBorder(box, nil, nil, nil, notesEntry)
+	// return container.NewBorder(nil, nil, nil, nil, notesEntry)
 }
 
 func newGoalForm(goalsBox *fyne.Container) {
