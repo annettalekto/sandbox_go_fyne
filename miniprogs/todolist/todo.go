@@ -15,6 +15,7 @@ import (
 type taskType struct {
 	Check *widget.Check
 	Box   *fyne.Container
+	Notes string
 }
 
 var Tasks []taskType

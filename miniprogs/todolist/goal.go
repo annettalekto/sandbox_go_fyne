@@ -15,19 +15,20 @@ import (
 
 // goalType data
 type goalType struct {
-	Name, Note  string
-	Max         float64
-	ProgressBar *widget.ProgressBar
-	Box         *fyne.Container
+	Name, Description string
+	Max               float64
+	ProgressBar       *widget.ProgressBar
+	Box               *fyne.Container
+	Notes             string
 }
 
 var Goals []goalType
 var GoalsBox *fyne.Container
 
 // Init for goalType's progressBar
-func (g *goalType) Init(name, note string, max float64) {
+func (g *goalType) Init(name, description string, max float64) {
 	g.Name = name
-	g.Note = note
+	g.Description = description
 	g.Max = max
 
 	text := canvas.NewText("     "+g.Name, color.Black) // без пробелов выходит за прогресс бар слева
@@ -68,17 +69,27 @@ func (g *goalType) ChangeGoalForm() {
 	name.TextSize = 16
 	name.TextStyle.Monospace = true
 	nameBox := container.NewHBox(layout.NewSpacer(), name, layout.NewSpacer())
-	noteEntry := widget.NewEntry()
-	if g.Note == "" {
-		noteEntry.SetPlaceHolder("Введите примечание...")
+	descriptionEntry := widget.NewEntry()
+	descriptionEntry.OnChanged = func(s string) {
+		g.Description = s
+	}
+	if g.Description == "" {
+		descriptionEntry.SetPlaceHolder("Введите примечание...")
 	} else {
-		noteEntry.SetText(g.Note)
+		descriptionEntry.SetText(g.Description)
 	}
 
-	maxValueEntry := newNumericalEntry() // установка по нажатию? вот тут может и не надо
-	maxValueEntry.SetPlaceHolder(fmt.Sprintf("%v", g.ProgressBar.Value))
+	valueEntry := newNumericalEntry()
+	valueEntry.OnChanged = func(s string) {
+		v, err := strconv.Atoi(s)
+		if err == nil {
+			g.ProgressBar.Value = float64(v)
+			g.ProgressBar.Refresh()
+		}
+	}
+	valueEntry.SetPlaceHolder(fmt.Sprintf("%v", g.ProgressBar.Value))
 	boxValue := container.NewBorder(nil, nil, widget.NewLabel("Сделано: "),
-		widget.NewLabel(fmt.Sprintf("(из %v)", g.ProgressBar.Max)), maxValueEntry)
+		widget.NewLabel(fmt.Sprintf("(из %v)", g.ProgressBar.Max)), valueEntry)
 
 	doneButton := widget.NewButton("Завершить", func() {
 		if g.Max != g.ProgressBar.Value {
@@ -116,7 +127,7 @@ func (g *goalType) ChangeGoalForm() {
 	})
 	buttonBox := container.NewHBox(deleteButton, doneButton, layout.NewSpacer(), okButton)
 
-	goalsBox := container.NewVBox(nameBox, noteEntry, boxValue, widget.NewLabel(""), buttonBox)
+	goalsBox := container.NewVBox(nameBox, descriptionEntry, boxValue, widget.NewLabel(""), buttonBox)
 	w.SetContent(goalsBox)
 	w.Show()
 }
@@ -168,26 +179,26 @@ func goalForm() *fyne.Container {
 }
 
 func newGoalForm(goalsBox *fyne.Container) {
-	w := fyne.CurrentApp().NewWindow("Создать") // CurrentApp!
+	w := fyne.CurrentApp().NewWindow("Создать")
 	w.Resize(fyne.NewSize(500, 200))
 	w.SetFixedSize(true)
 	w.CenterOnScreen()
 
 	var err error
-	var name, note string // todo: как передать данные
+	var name, description string // todo: как передать данные
 	var max int
 	errorLabel := widget.NewLabel("...") // вывод ошибок
 
 	nameStr := "Название"
 	nameEntry := widget.NewEntry()
 	noteStr := "Примечание"
-	noteEntry := widget.NewEntry()
+	descriptionEntry := widget.NewEntry()
 	maxValueStr := "Максимальноe число задач"
 	maxValueEntry := newNumericalEntry()
 
 	grid := container.NewGridWithColumns(2,
 		widget.NewLabel(nameStr+": "), nameEntry,
-		widget.NewLabel(noteStr+": "), noteEntry,
+		widget.NewLabel(noteStr+": "), descriptionEntry,
 		widget.NewLabel(maxValueStr+": "), maxValueEntry,
 	)
 
@@ -199,7 +210,7 @@ func newGoalForm(goalsBox *fyne.Container) {
 			errorLabel.Refresh()
 			return
 		}
-		note = noteEntry.Text
+		description = descriptionEntry.Text
 		maxStr := maxValueEntry.Text
 		if maxStr == "" {
 			err = fmt.Errorf("поле ввода \"%s\" не может быть пустым", maxValueStr)
@@ -228,7 +239,7 @@ func newGoalForm(goalsBox *fyne.Container) {
 		}
 		errorLabel.Text = "ок"
 		var g goalType
-		g.Init(name, note, float64(max))
+		g.Init(name, description, float64(max))
 		Goals = append(Goals, g)
 		goalsBox.Add(g.Box)
 		w.Close()
@@ -238,7 +249,7 @@ func newGoalForm(goalsBox *fyne.Container) {
 	box := container.NewVBox(grid, buttonBox, errorLabel)
 
 	w.SetContent(box)
-	w.Show() // ShowAndRun -- panic!
+	w.Show()
 }
 
 func createGoalsBox(goals []goalType) *fyne.Container {
