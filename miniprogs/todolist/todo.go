@@ -30,7 +30,6 @@ func (t *taskType) Init(name string, priotity taskPriority) {
 			v -= 1
 		}
 		TasksDone.Set(v)
-
 	})
 
 	nameWidget := canvas.NewText(name, getColorOfPriority(priotity))

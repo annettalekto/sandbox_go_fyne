@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"strconv"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -13,17 +14,14 @@ import (
 )
 
 // goalType data
-type goalType struct { // todo: удалить лишнее
-	Name, Note   string
-	Max          float64
-	ProgressBar  *widget.ProgressBar // тут value
-	PlusButton   *widget.Button      // todo: проредить
-	ChangeButton *widget.Button
-	Box          *fyne.Container
-	// note: добавить цельное название / описание
+type goalType struct {
+	Name, Note  string
+	Max         float64
+	ProgressBar *widget.ProgressBar
+	Box         *fyne.Container
 }
 
-var goalSlice []goalType
+var Goals []goalType
 
 // Init for goalType's progressBar
 func (g *goalType) Init(name, note string, max float64) {
@@ -31,7 +29,6 @@ func (g *goalType) Init(name, note string, max float64) {
 	g.Note = note
 	g.Max = max
 
-	// label := widget.NewLabel(g.Name)
 	text := canvas.NewText("     "+g.Name, color.Black) // без пробелов выходит за прогресс бар слева
 	text.TextStyle.Italic = true
 	textBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(0, 30)), text)
@@ -41,14 +38,14 @@ func (g *goalType) Init(name, note string, max float64) {
 	g.ProgressBar.Min = 0
 	g.ProgressBar.SetValue(0)
 
-	g.PlusButton = widget.NewButton("  +  ", func() {
+	plusButton := widget.NewButton("  +  ", func() {
 		g.ProgressBar.Value++
 		g.ProgressBar.Refresh()
 	})
-	g.ChangeButton = widget.NewButton("  ...  ", func() {
+	changeButton := widget.NewButton("  ...  ", func() {
 		g.ChangeGoalForm()
 	})
-	buttonBox := container.NewHBox(g.PlusButton, g.ChangeButton)
+	buttonBox := container.NewHBox(plusButton, changeButton)
 	g.Box = container.NewBorder(nil, nil, textBox, buttonBox, g.ProgressBar)
 }
 
@@ -60,7 +57,8 @@ func (g *goalType) IncrementProgress() {
 
 // ChangeGoalForm форма для изменения парамметров цели
 func (g *goalType) ChangeGoalForm() {
-	w := fyne.CurrentApp().NewWindow("Изменить") // CurrentApp!
+
+	w := fyne.CurrentApp().NewWindow("Изменить")
 	w.Resize(fyne.NewSize(400, 190))
 	w.SetFixedSize(true)
 	w.CenterOnScreen()
@@ -76,7 +74,7 @@ func (g *goalType) ChangeGoalForm() {
 		noteEntry.SetText(g.Note)
 	}
 
-	maxValueEntry := newNumericalEntry() // установка по нажатию
+	maxValueEntry := newNumericalEntry() // установка по нажатию? вот тут может и не надо
 	maxValueEntry.SetPlaceHolder(fmt.Sprintf("%v", g.ProgressBar.Value))
 	boxValue := container.NewBorder(nil, nil, widget.NewLabel("Сделано: "),
 		widget.NewLabel(fmt.Sprintf("(из %v)", g.ProgressBar.Max)), maxValueEntry)
@@ -87,7 +85,9 @@ func (g *goalType) ChangeGoalForm() {
 	})
 	deleteButton := widget.NewButton("Удалить", func() {
 		// окно с вопросом
-		// удалить из слайса, файла и формы
+		// удалить из файла
+		Goals = removeGoals(Goals, g.Name)
+		// goalsBox.Remove(g.Box)
 	})
 	okButton := widget.NewButton("Ok", func() {
 
@@ -95,9 +95,21 @@ func (g *goalType) ChangeGoalForm() {
 	buttonBox := container.NewHBox(deleteButton, doneButton, layout.NewSpacer(), okButton)
 	// buttonBox = container.NewBorder(nil, nil, nil, buttonBox)
 
-	box := container.NewVBox(nameBox, noteEntry, boxValue, widget.NewLabel(""), buttonBox)
-	w.SetContent(box)
+	goalsBox := container.NewVBox(nameBox, noteEntry, boxValue, widget.NewLabel(""), buttonBox)
+	w.SetContent(goalsBox)
 	w.Show() // ShowAndRun -- panic!
+}
+
+func removeGoals(slice []goalType, name string) []goalType {
+	pos := 0
+	for i, g := range slice {
+		if g.Name == name {
+			pos = i
+			break
+		}
+	}
+	copy(slice[pos:], slice[pos+1:])
+	return slice[:len(slice)-1]
 }
 
 // ----------------------------------------------------------------------------
@@ -106,8 +118,8 @@ func (g *goalType) ChangeGoalForm() {
 
 func goalForm() *fyne.Container {
 
-	goalSlice = append(goalSlice, readGoalsFromFile()...)
-	goalsBox := createGoalsBox(goalSlice)
+	Goals = append(Goals, readGoalsFromFile()...)
+	goalsBox := createGoalsBox(Goals)
 	addGoalButton := widget.NewButton("Новая цель", func() {
 		newGoalForm(goalsBox)
 	})
@@ -118,8 +130,20 @@ func goalForm() *fyne.Container {
 	notesEntry.Wrapping = fyne.TextWrapWord
 
 	box := container.NewVBox(goalsBox, button)
+
+	go func() {
+		l := len(Goals)
+		sec := time.NewTicker(time.Second / 2)
+		for range sec.C {
+			if l != len(Goals) {
+				l = len(Goals)
+				goalsBox = createGoalsBox(Goals)
+				box.Refresh()
+			}
+		}
+	}()
+
 	return container.NewBorder(box, nil, nil, nil, notesEntry)
-	// return container.NewBorder(nil, nil, nil, nil, notesEntry)
 }
 
 func newGoalForm(goalsBox *fyne.Container) {
@@ -184,7 +208,7 @@ func newGoalForm(goalsBox *fyne.Container) {
 		errorLabel.Text = "ок"
 		var g goalType
 		g.Init(name, note, float64(max))
-		goalSlice = append(goalSlice, g)
+		Goals = append(Goals, g)
 		goalsBox.Add(g.Box)
 		w.Close()
 	})
