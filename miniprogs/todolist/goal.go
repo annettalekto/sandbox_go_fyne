@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"image/color"
 	"strconv"
-	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
@@ -22,6 +22,7 @@ type goalType struct {
 }
 
 var Goals []goalType
+var GoalsBox *fyne.Container
 
 // Init for goalType's progressBar
 func (g *goalType) Init(name, note string, max float64) {
@@ -80,24 +81,44 @@ func (g *goalType) ChangeGoalForm() {
 		widget.NewLabel(fmt.Sprintf("(из %v)", g.ProgressBar.Max)), maxValueEntry)
 
 	doneButton := widget.NewButton("Завершить", func() {
-		// окно с вопросом если не сделано 100%
-		// сохранить в отдел завершенные в файле
+		if g.Max != g.ProgressBar.Value {
+
+			msg := fmt.Sprintf("Завершение цели \"%s\"", g.Name)
+			d := dialog.NewConfirm(msg, "Прогресс не 100% Завершить?", func(ok bool) {
+				w.Close()
+				if ok {
+					Goals = removeGoals(Goals, g.Name)
+					GoalsBox.Remove(g.Box)
+					// сохранить в отдельный файл завершенные проекты
+				}
+			}, w)
+			d.SetDismissText("Отмена")
+			d.SetConfirmText("Да")
+			d.Show()
+		}
 	})
 	deleteButton := widget.NewButton("Удалить", func() {
-		// окно с вопросом
-		// удалить из файла
-		Goals = removeGoals(Goals, g.Name)
-		// goalsBox.Remove(g.Box)
+		msg := fmt.Sprintf("Удаление цели \"%s\"", g.Name)
+		d := dialog.NewConfirm(msg, "Точно удалить?", func(ok bool) {
+			w.Close()
+			if ok {
+				Goals = removeGoals(Goals, g.Name)
+				GoalsBox.Remove(g.Box)
+				// удалить из файла
+			}
+		}, w)
+		d.SetDismissText("Отмена")
+		d.SetConfirmText("Да")
+		d.Show()
 	})
 	okButton := widget.NewButton("Ok", func() {
-
+		w.Close()
 	})
 	buttonBox := container.NewHBox(deleteButton, doneButton, layout.NewSpacer(), okButton)
-	// buttonBox = container.NewBorder(nil, nil, nil, buttonBox)
 
 	goalsBox := container.NewVBox(nameBox, noteEntry, boxValue, widget.NewLabel(""), buttonBox)
 	w.SetContent(goalsBox)
-	w.Show() // ShowAndRun -- panic!
+	w.Show()
 }
 
 func removeGoals(slice []goalType, name string) []goalType {
@@ -119,9 +140,9 @@ func removeGoals(slice []goalType, name string) []goalType {
 func goalForm() *fyne.Container {
 
 	Goals = append(Goals, readGoalsFromFile()...)
-	goalsBox := createGoalsBox(Goals)
+	GoalsBox = createGoalsBox(Goals)
 	addGoalButton := widget.NewButton("Новая цель", func() {
-		newGoalForm(goalsBox)
+		newGoalForm(GoalsBox)
 	})
 
 	button := container.NewBorder(nil, nil, nil, addGoalButton)
@@ -129,19 +150,19 @@ func goalForm() *fyne.Container {
 	notesEntry := widget.NewMultiLineEntry()
 	notesEntry.Wrapping = fyne.TextWrapWord
 
-	box := container.NewVBox(goalsBox, button)
+	box := container.NewVBox(GoalsBox, button)
 
-	go func() {
-		l := len(Goals)
-		sec := time.NewTicker(time.Second / 2)
-		for range sec.C {
-			if l != len(Goals) {
-				l = len(Goals)
-				goalsBox = createGoalsBox(Goals)
-				box.Refresh()
-			}
-		}
-	}()
+	// go func() {
+	// 	l := len(Goals)
+	// 	sec := time.NewTicker(time.Second / 2)
+	// 	for range sec.C {
+	// 		if l != len(Goals) {
+	// 			l = len(Goals)
+
+	// 			box.Refresh()
+	// 		}
+	// 	}
+	// }()
 
 	return container.NewBorder(box, nil, nil, nil, notesEntry)
 }
@@ -222,12 +243,10 @@ func newGoalForm(goalsBox *fyne.Container) {
 
 func createGoalsBox(goals []goalType) *fyne.Container {
 
-	// note: при выводе сортировать как то?
 	box := container.NewVBox()
 	for _, g := range goals {
 		box.Add(g.Box)
 	}
-	//box = container.New(layout.NewGridWrapLayout(fyne.NewSize(780, 200)), container.NewVScroll(box))
 	return box
 }
 

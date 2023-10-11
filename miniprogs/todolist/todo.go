@@ -90,7 +90,6 @@ func taskForm(t *container.AppTabs) *fyne.Container {
 
 	go func() {
 		l := len(Tasks)
-		// chg := false
 
 		sec := time.NewTicker(time.Second / 2)
 		for range sec.C {
@@ -101,12 +100,10 @@ func taskForm(t *container.AppTabs) *fyne.Container {
 					pbarInf.Show()
 					pbar.Hide()
 					box.Refresh()
-					// chg = false
 				} else {
 					pbarInf.Hide()
 					pbar.Show()
 					box.Refresh()
-					// chg = false
 				}
 				box.Refresh()
 			}
@@ -121,7 +118,7 @@ func removeTask(slice []taskType, i int) []taskType {
 	return slice[:len(slice)-1]
 }
 
-func addTaskForm(tb *fyne.Container, pbar *widget.ProgressBar) { // или расположить на главной форме entry
+func addTaskForm(tb *fyne.Container, pbar *widget.ProgressBar) { //todo: или расположить на главной форме entry
 	w := fyne.CurrentApp().NewWindow("Создать")
 	w.Resize(fyne.NewSize(400, 130))
 	w.SetFixedSize(true)
