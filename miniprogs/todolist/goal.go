@@ -1,8 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"image/color"
+	"io"
+	"log"
+	"os"
 	"strconv"
 
 	"fyne.io/fyne/v2"
@@ -16,14 +20,17 @@ import (
 // goalType data
 type goalType struct {
 	Name, Description string
-	Max               float64
-	ProgressBar       *widget.ProgressBar
-	Box               *fyne.Container
-	Notes             string
+	Max, Value        float64
+	ProgressBar       *widget.ProgressBar `json:"-"`
+	Box               *fyne.Container     `json:"-"`
 }
+
+// не для каждого типа, а для вкладки:
+// Notes             string              `json:",omitempty"`
 
 var Goals []goalType
 var GoalsBox *fyne.Container
+var FileName string = "data.json"
 
 // Init for goalType's progressBar
 func (g *goalType) Init(name, description string, max float64) {
@@ -42,6 +49,7 @@ func (g *goalType) Init(name, description string, max float64) {
 
 	plusButton := widget.NewButton("  +  ", func() {
 		g.ProgressBar.Value++
+		g.Value = g.ProgressBar.Value // т.к. *widget.ProgressBar не сохраняется в файл
 		g.ProgressBar.Refresh()
 	})
 	changeButton := widget.NewButton("  ...  ", func() {
@@ -53,6 +61,7 @@ func (g *goalType) Init(name, description string, max float64) {
 
 // IncrementProgress прибавить прогресс
 func (g *goalType) IncrementProgress() {
+	g.Value = g.ProgressBar.Value
 	g.ProgressBar.Value++
 	g.ProgressBar.Refresh()
 }
@@ -84,6 +93,7 @@ func (g *goalType) ChangeGoalForm() {
 		v, err := strconv.Atoi(s)
 		if err == nil {
 			g.ProgressBar.Value = float64(v)
+			g.Value = g.ProgressBar.Value
 			g.ProgressBar.Refresh()
 		}
 	}
@@ -155,11 +165,16 @@ func goalForm() *fyne.Container {
 	addGoalButton := widget.NewButton("Новая цель", func() {
 		newGoalForm(GoalsBox)
 	})
-
-	button := container.NewBorder(nil, nil, nil, addGoalButton)
+	testButton := widget.NewButton("Записть файла", func() {
+		writeGoalsIntoFile(Goals)
+	})
+	button := container.NewBorder(nil, nil, testButton, addGoalButton)
 
 	notesEntry := widget.NewMultiLineEntry()
 	notesEntry.Wrapping = fyne.TextWrapWord
+	notesEntry.OnChanged = func(s string) {
+		// todo: ...
+	}
 
 	box := container.NewVBox(GoalsBox, button)
 
@@ -261,7 +276,7 @@ func createGoalsBox(goals []goalType) *fyne.Container {
 	return box
 }
 
-func readGoalsFromFile() []goalType { // todo: File!
+func readGoalsFromFile() []goalType {
 	var goals []goalType
 	var goal1, goal2, goal3 goalType
 	goal1.Init("Читать ITM:", "", 300)
@@ -269,4 +284,40 @@ func readGoalsFromFile() []goalType { // todo: File!
 	goal3.Init("Перебрать тетради:", "", 15)
 	goals = append(goals, goal1, goal2, goal3)
 	return goals
+}
+func readGoalsFromFile1() ([]goalType, error) {
+	filename, err := os.Open(FileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer filename.Close()
+
+	data, err := io.ReadAll(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var goals []goalType
+	jsonErr := json.Unmarshal(data, &goals)
+	if jsonErr != nil {
+		log.Fatal(jsonErr)
+	}
+
+	return goals, err
+}
+
+func writeGoalsIntoFile(g []goalType) error {
+	filename, err := os.Open(FileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer filename.Close()
+
+	jsData, err := json.MarshalIndent(g, "", "	")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = os.WriteFile(FileName, jsData, 0777)
+
+	return err
 }
