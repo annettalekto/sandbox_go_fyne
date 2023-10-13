@@ -33,7 +33,7 @@ var GoalsBox *fyne.Container
 var FileName string = "data.json"
 
 // Init for goalType's progressBar
-func (g *goalType) Init(name, description string, max float64) {
+func (g *goalType) Init(name, description string, max, value float64) {
 	g.Name = name
 	g.Description = description
 	g.Max = max
@@ -43,7 +43,8 @@ func (g *goalType) Init(name, description string, max float64) {
 	textBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(0, 30)), text)
 
 	g.ProgressBar = widget.NewProgressBar()
-	g.ProgressBar.Max = g.Max
+	g.ProgressBar.Max = max
+	g.ProgressBar.Value = value
 	g.ProgressBar.Min = 0
 	g.ProgressBar.SetValue(0)
 
@@ -155,13 +156,23 @@ func removeGoals(slice []goalType, name string) []goalType {
 }
 
 // ----------------------------------------------------------------------------
-// 									goal form
+//
+//	goal form
+//
 // ----------------------------------------------------------------------------
-
+func (g *goalType) IncValue() {
+	g.Value++
+}
 func goalForm() *fyne.Container {
 
 	Goals = append(Goals, readGoalsFromFile()...)
-	GoalsBox = createGoalsBox(Goals)
+	// GoalsBox = createGoalsBox(Goals)
+	GoalsBox = container.NewVBox()
+	Goals[0].IncValue()
+	Goals[0].IncValue()
+	for i := 0; i < len(Goals); i++ {
+		GoalsBox.Add(Goals[i].Box)
+	}
 	addGoalButton := widget.NewButton("Новая цель", func() {
 		newGoalForm(GoalsBox)
 	})
@@ -254,7 +265,7 @@ func newGoalForm(goalsBox *fyne.Container) {
 		}
 		errorLabel.Text = "ок"
 		var g goalType
-		g.Init(name, description, float64(max))
+		g.Init(name, description, float64(max), 0)
 		Goals = append(Goals, g)
 		goalsBox.Add(g.Box)
 		w.Close()
@@ -270,18 +281,22 @@ func newGoalForm(goalsBox *fyne.Container) {
 func createGoalsBox(goals []goalType) *fyne.Container {
 
 	box := container.NewVBox()
-	for _, g := range goals {
-		box.Add(g.Box)
+	// for _, g := range goals {
+	// 	box.Add(g.Box)
+	// }
+	for i := 0; i < len(goals); i++ {
+		box.Add(goals[i].Box)
 	}
+
 	return box
 }
 
 func readGoalsFromFile() []goalType {
 	var goals []goalType
 	var goal1, goal2, goal3 goalType
-	goal1.Init("Читать ITM:", "", 300)
-	goal2.Init("Читать ENG:", "", 1300)
-	goal3.Init("Перебрать тетради:", "", 15)
+	goal1.Init("Читать ITM:", "", 300, 5)
+	goal2.Init("Читать ENG:", "", 1300, 5)
+	goal3.Init("Перебрать тетради:", "", 15, 5)
 	goals = append(goals, goal1, goal2, goal3)
 	return goals
 }

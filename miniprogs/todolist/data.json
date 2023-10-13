@@ -2,19 +2,19 @@
 	{
 		"Name": "Читать ITM:",
 		"Description": "",
-		"Max": 300,
-		"Value": 0
+		"Max": 5,
+		"Value": 2
 	},
 	{
 		"Name": "Читать ENG:",
 		"Description": "",
-		"Max": 1300,
+		"Max": 5,
 		"Value": 0
 	},
 	{
 		"Name": "Перебрать тетради:",
 		"Description": "",
-		"Max": 15,
+		"Max": 5,
 		"Value": 0
 	}
 ]
