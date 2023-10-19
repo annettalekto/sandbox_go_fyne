@@ -37,6 +37,7 @@ func (g *goalType) Init(name, description string, max, value float64) {
 	g.Name = name
 	g.Description = description
 	g.Max = max
+	g.Value = value
 
 	text := canvas.NewText("     "+g.Name, color.Black) // без пробелов выходит за прогресс бар слева
 	text.TextStyle.Italic = true
@@ -45,15 +46,13 @@ func (g *goalType) Init(name, description string, max, value float64) {
 	g.ProgressBar = widget.NewProgressBar()
 	g.ProgressBar.Max = max
 	g.ProgressBar.Value = value
-	g.ProgressBar.Min = 0
-	g.ProgressBar.SetValue(0)
+	// g.ProgressBar.Min = 0
+	g.ProgressBar.SetValue(value)
 
 	plusButton := widget.NewButton("  +  ", func() {
-		// fmt.Println(Goals)
 		g.ProgressBar.Value++
 		g.Value = g.ProgressBar.Value // т.к. *widget.ProgressBar не сохраняется в файл
 		g.ProgressBar.Refresh()
-		// fmt.Println(Goals)
 	})
 	changeButton := widget.NewButton("  ...  ", func() {
 		g.ChangeGoalForm()
@@ -283,7 +282,7 @@ func newGoalForm(goalsBox *fyne.Container) {
 	w.Show()
 }
 
-func createGoalsBox(goals []goalType) *fyne.Container {
+/*func createGoalsBox(goals []goalType) *fyne.Container {
 
 	box := container.NewVBox()
 	// for _, g := range goals {
@@ -294,7 +293,7 @@ func createGoalsBox(goals []goalType) *fyne.Container {
 	}
 
 	return box
-}
+}*/
 
 //	func readGoalsFromFile1() []goalType {
 //		var goals []goalType

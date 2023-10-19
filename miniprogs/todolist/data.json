@@ -3,7 +3,7 @@
 		"Name": "Читать ITM:",
 		"Description": "",
 		"Max": 5,
-		"Value": 0
+		"Value": 6
 	},
 	{
 		"Name": "Читать ENG:",
@@ -15,6 +15,6 @@
 		"Name": "Перебрать тетради:",
 		"Description": "",
 		"Max": 5,
-		"Value": 6
+		"Value": 5
 	}
 ]
