@@ -28,8 +28,8 @@ type goalType struct {
 // не для каждого типа, а для вкладки:
 // Notes             string              `json:",omitempty"`
 
-var Goals []goalType
-var GoalsBox *fyne.Container
+var Goals = make([]goalType, 0, 10) // todo: AAAAAAAAAAAA не помогло
+var GoalsBox = container.NewVBox()  //*fyne.Container
 var FileName string = "data.json"
 
 // Init for goalType's progressBar
@@ -49,9 +49,11 @@ func (g *goalType) Init(name, description string, max, value float64) {
 	g.ProgressBar.SetValue(0)
 
 	plusButton := widget.NewButton("  +  ", func() {
+		// fmt.Println(Goals)
 		g.ProgressBar.Value++
 		g.Value = g.ProgressBar.Value // т.к. *widget.ProgressBar не сохраняется в файл
 		g.ProgressBar.Refresh()
+		// fmt.Println(Goals)
 	})
 	changeButton := widget.NewButton("  ...  ", func() {
 		g.ChangeGoalForm()
@@ -160,19 +162,22 @@ func removeGoals(slice []goalType, name string) []goalType {
 //	goal form
 //
 // ----------------------------------------------------------------------------
-func (g *goalType) IncValue() {
-	g.Value++
-}
+
 func goalForm() *fyne.Container {
 
-	Goals = append(Goals, readGoalsFromFile()...)
-	// GoalsBox = createGoalsBox(Goals)
-	GoalsBox = container.NewVBox()
-	Goals[0].IncValue()
-	Goals[0].IncValue()
-	for i := 0; i < len(Goals); i++ {
-		GoalsBox.Add(Goals[i].Box)
+	savedGoals, err := readGoalsFromFile()
+	if err != nil {
+		fmt.Printf("ошибка получения json: %v", err)
 	}
+	// init saved Goals
+	for _, saved := range savedGoals {
+		Goals = append(Goals, goalType{Name: ""})
+		Goals[len(Goals)-1].Init(saved.Name, saved.Description, saved.Max, saved.Value)
+		// fill box
+		GoalsBox.Add(Goals[len(Goals)-1].Box)
+	}
+	// for i := 0; i < len(Goals); i++ {
+	// }
 	addGoalButton := widget.NewButton("Новая цель", func() {
 		newGoalForm(GoalsBox)
 	})
@@ -291,34 +296,35 @@ func createGoalsBox(goals []goalType) *fyne.Container {
 	return box
 }
 
-func readGoalsFromFile() []goalType {
-	var goals []goalType
-	var goal1, goal2, goal3 goalType
-	goal1.Init("Читать ITM:", "", 300, 5)
-	goal2.Init("Читать ENG:", "", 1300, 5)
-	goal3.Init("Перебрать тетради:", "", 15, 5)
-	goals = append(goals, goal1, goal2, goal3)
-	return goals
-}
-func readGoalsFromFile1() ([]goalType, error) {
+//	func readGoalsFromFile1() []goalType {
+//		var goals []goalType
+//		var goal1, goal2, goal3 goalType
+//		goal1.Init("Читать ITM:", "", 300, 5)
+//		goal2.Init("Читать ENG:", "", 1300, 5)
+//		goal3.Init("Перебрать тетради:", "", 15, 5)
+//		goals = append(goals, goal1, goal2, goal3)
+//		return goals
+//	}
+func readGoalsFromFile() ([]goalType, error) {
 	filename, err := os.Open(FileName)
 	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
 	defer filename.Close()
 
 	data, err := io.ReadAll(filename)
 	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
 
-	var goals []goalType
-	jsonErr := json.Unmarshal(data, &goals)
-	if jsonErr != nil {
-		log.Fatal(jsonErr)
+	var saved []goalType
+	if err = json.Unmarshal(data, &saved); err != nil {
+		log.Fatal(err)
 	}
 
-	return goals, err
+	return saved, err
 }
 
 func writeGoalsIntoFile(g []goalType) error {
