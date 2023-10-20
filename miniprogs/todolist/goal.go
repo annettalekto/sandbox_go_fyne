@@ -25,12 +25,13 @@ type goalType struct {
 	Box               *fyne.Container     `json:"-"`
 }
 
-// не для каждого типа, а для вкладки:
 // Notes             string              `json:",omitempty"`
 
-var Goals = make([]goalType, 0, 10) // todo: AAAAAAAAAAAA не помогло
-var GoalsBox = container.NewVBox()  //*fyne.Container
-var FileName string = "data.json"
+var Goals = make([]goalType, 0, 10)
+var GoalsBox = container.NewVBox()
+
+var JSONfile string = "data.json"
+var GoalsNoteFile string = "data\\goal_notes.txt"
 
 // Init for goalType's progressBar
 func (g *goalType) Init(name, description string, max, value float64) {
@@ -175,21 +176,23 @@ func goalForm() *fyne.Container {
 		// fill box
 		GoalsBox.Add(Goals[len(Goals)-1].Box)
 	}
-	// for i := 0; i < len(Goals); i++ {
-	// }
+
 	addGoalButton := widget.NewButton("Новая цель", func() {
 		newGoalForm(GoalsBox)
 	})
-	testButton := widget.NewButton("Записть файла", func() {
-		writeGoalsIntoFile(Goals)
-	})
-	button := container.NewBorder(nil, nil, testButton, addGoalButton)
 
 	notesEntry := widget.NewMultiLineEntry()
 	notesEntry.Wrapping = fyne.TextWrapWord
+	s, _ := readGoalNotes()
+	notesEntry.Text = s
 	notesEntry.OnChanged = func(s string) {
-		// todo: ...
+		writeGoalNotes(s)
 	}
+
+	testButton := widget.NewButton("Записть файла", func() { // debug
+		writeGoalsIntoFile(Goals)
+	})
+	button := container.NewBorder(nil, nil, testButton, addGoalButton)
 
 	box := container.NewVBox(GoalsBox, button)
 
@@ -282,30 +285,8 @@ func newGoalForm(goalsBox *fyne.Container) {
 	w.Show()
 }
 
-/*func createGoalsBox(goals []goalType) *fyne.Container {
-
-	box := container.NewVBox()
-	// for _, g := range goals {
-	// 	box.Add(g.Box)
-	// }
-	for i := 0; i < len(goals); i++ {
-		box.Add(goals[i].Box)
-	}
-
-	return box
-}*/
-
-//	func readGoalsFromFile1() []goalType {
-//		var goals []goalType
-//		var goal1, goal2, goal3 goalType
-//		goal1.Init("Читать ITM:", "", 300, 5)
-//		goal2.Init("Читать ENG:", "", 1300, 5)
-//		goal3.Init("Перебрать тетради:", "", 15, 5)
-//		goals = append(goals, goal1, goal2, goal3)
-//		return goals
-//	}
 func readGoalsFromFile() ([]goalType, error) {
-	filename, err := os.Open(FileName)
+	filename, err := os.Open(JSONfile)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -327,17 +308,34 @@ func readGoalsFromFile() ([]goalType, error) {
 }
 
 func writeGoalsIntoFile(g []goalType) error {
-	filename, err := os.Open(FileName)
+	file, err := os.Open(JSONfile)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer filename.Close()
+	defer file.Close()
 
 	jsData, err := json.MarshalIndent(g, "", "	")
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = os.WriteFile(FileName, jsData, 0777)
+	err = os.WriteFile(JSONfile, jsData, 0777)
 
+	return err
+}
+
+func readGoalNotes() (string, error) {
+	in, err := os.ReadFile(GoalsNoteFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(in)
+	return string(in), err
+}
+
+func writeGoalNotes(s string) error {
+	err := os.WriteFile(GoalsNoteFile, []byte(s), 0777)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return err
 }
