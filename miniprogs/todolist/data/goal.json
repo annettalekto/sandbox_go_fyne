@@ -1,0 +1,20 @@
+[
+	{
+		"Name": "Читать ITM:",
+		"Description": "",
+		"Max": 5,
+		"Value": 6
+	},
+	{
+		"Name": "Читать ENG:",
+		"Description": "",
+		"Max": 5,
+		"Value": 6
+	},
+	{
+		"Name": "Перебрать тетради:",
+		"Description": "",
+		"Max": 5,
+		"Value": 5
+	}
+]

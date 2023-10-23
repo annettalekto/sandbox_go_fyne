@@ -13,15 +13,21 @@ import (
 
 // taskType data
 type taskType struct {
-	Check *widget.Check
-	Box   *fyne.Container
-	Notes string
+	Name     string
+	Priority int
+	Check    *widget.Check   `json:"-"`
+	Box      *fyne.Container `json:"-"`
 }
 
 var Tasks []taskType
 var TasksDone binding.Float
 
-func (t *taskType) Init(name string, priotity taskPriority) {
+var taskJSON string = "data\\task.json"
+var TasksNoteFile string = "data\\task_notes.txt"
+
+func (t *taskType) Init(name string, priority taskPriority) {
+	t.Name = name
+	t.Priority = int(priority)
 
 	t.Check = widget.NewCheck("", func(b bool) {
 		v, _ := TasksDone.Get()
@@ -33,7 +39,7 @@ func (t *taskType) Init(name string, priotity taskPriority) {
 		TasksDone.Set(v)
 	})
 
-	nameWidget := canvas.NewText(name, getColorOfPriority(priotity))
+	nameWidget := canvas.NewText(name, getColorOfPriority(priority))
 	nameWidget.TextSize = 14
 	nameWidget.TextStyle.Monospace = true
 

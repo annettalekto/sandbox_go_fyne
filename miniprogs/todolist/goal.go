@@ -30,7 +30,7 @@ type goalType struct {
 var Goals = make([]goalType, 0, 10)
 var GoalsBox = container.NewVBox()
 
-var JSONfile string = "data.json"
+var goalJSON string = "data\\goal.json"
 var GoalsNoteFile string = "data\\goal_notes.txt"
 
 // Init for goalType's progressBar
@@ -286,7 +286,7 @@ func newGoalForm(goalsBox *fyne.Container) {
 }
 
 func readGoalsFromFile() ([]goalType, error) {
-	filename, err := os.Open(JSONfile)
+	filename, err := os.Open(goalJSON)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -308,7 +308,7 @@ func readGoalsFromFile() ([]goalType, error) {
 }
 
 func writeGoalsIntoFile(g []goalType) error {
-	file, err := os.Open(JSONfile)
+	file, err := os.Open(goalJSON)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -318,7 +318,7 @@ func writeGoalsIntoFile(g []goalType) error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = os.WriteFile(JSONfile, jsData, 0777)
+	err = os.WriteFile(goalJSON, jsData, 0777)
 
 	return err
 }
