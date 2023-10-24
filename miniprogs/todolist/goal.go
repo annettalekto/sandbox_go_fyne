@@ -23,9 +23,8 @@ type goalType struct {
 	Max, Value        float64
 	ProgressBar       *widget.ProgressBar `json:"-"`
 	Box               *fyne.Container     `json:"-"`
+	// Notes             string              `json:",omitempty"`
 }
-
-// Notes             string              `json:",omitempty"`
 
 var Goals = make([]goalType, 0, 10)
 var GoalsBox = container.NewVBox()
@@ -140,8 +139,8 @@ func (g *goalType) ChangeGoalForm() {
 	})
 	buttonBox := container.NewHBox(deleteButton, doneButton, layout.NewSpacer(), okButton)
 
-	goalsBox := container.NewVBox(nameBox, descriptionEntry, boxValue, widget.NewLabel(""), buttonBox)
-	w.SetContent(goalsBox)
+	box := container.NewVBox(nameBox, descriptionEntry, boxValue, widget.NewLabel(""), buttonBox)
+	w.SetContent(box)
 	w.Show()
 }
 
@@ -167,7 +166,7 @@ func goalForm() *fyne.Container {
 
 	savedGoals, err := readGoalsFromFile()
 	if err != nil {
-		fmt.Printf("ошибка получения json: %v", err)
+		fmt.Printf("ошибка получения данных json: %v", err)
 	}
 	// init saved Goals
 	for _, saved := range savedGoals {
@@ -286,14 +285,14 @@ func newGoalForm(goalsBox *fyne.Container) {
 }
 
 func readGoalsFromFile() ([]goalType, error) {
-	filename, err := os.Open(goalJSON)
+	file, err := os.Open(goalJSON)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
 	}
-	defer filename.Close()
+	defer file.Close()
 
-	data, err := io.ReadAll(filename)
+	data, err := io.ReadAll(file)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -301,7 +300,7 @@ func readGoalsFromFile() ([]goalType, error) {
 
 	var saved []goalType
 	if err = json.Unmarshal(data, &saved); err != nil {
-		log.Fatal(err)
+		log.Fatal(err) // сбой демаршалинга
 	}
 
 	return saved, err
@@ -316,7 +315,7 @@ func writeGoalsIntoFile(g []goalType) error {
 
 	jsData, err := json.MarshalIndent(g, "", "	")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err) // сбой маршалинга
 	}
 	err = os.WriteFile(goalJSON, jsData, 0777)
 
@@ -328,7 +327,7 @@ func readGoalNotes() (string, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(in)
+	// fmt.Println(in)
 	return string(in), err
 }
 
