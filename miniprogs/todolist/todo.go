@@ -31,20 +31,27 @@ var taskJSON string = "data\\task.json"
 var TasksNoteFile string = "data\\task_notes.txt"
 
 func (t *taskType) Init(name string, priority taskPriority, done bool) {
-	v, _ := TasksDone.Get()
 	t.Name = name
 	t.Priority = int(priority)
 	t.Done = done
 
 	t.Check = widget.NewCheck("", func(b bool) {
-		TasksDone.Set(v)
+		td, err := TasksDone.Get()
+		if err != nil {
+			fmt.Println(err)
+		}
 		t.Done = b
 		if b {
-			v += 1
+			// d += 1
+			TasksDone.Set(td + 1)
 		} else {
-			v -= 1
+			// d -= 1
+			TasksDone.Set(td - 1)
 		}
 	})
+	if done {
+		t.Check.Checked = true
+	}
 
 	nameWidget := canvas.NewText(name, getColorOfPriority(priority))
 	nameWidget.TextSize = 14
@@ -60,7 +67,6 @@ func (t *taskType) Init(name string, priority taskPriority, done bool) {
 // ----------------------------------------------------------------------------
 
 func taskForm(t *container.AppTabs) *fyne.Container {
-	tb := container.NewGridWithColumns(2)
 	TasksDone = binding.NewFloat()
 
 	savedTasks, err := readTasksFromFile()
@@ -68,25 +74,27 @@ func taskForm(t *container.AppTabs) *fyne.Container {
 		fmt.Printf("ошибка получения данных json: %v", err)
 	}
 
+	d := 0
+	tb := container.NewGridWithColumns(2)
 	for _, saved := range savedTasks {
 		Tasks = append(Tasks, taskType{Name: ""})
+		fmt.Println(len(Tasks))
 		Tasks[len(Tasks)-1].Init(saved.Name, taskPriority(saved.Priority), saved.Done)
 		if saved.Done {
-			td, _ := TasksDone.Get()
-			TasksDone.Set(td + 1)
+			d++
 		}
-
 		tb.Add(Tasks[len(Tasks)-1].Box)
 	}
-	// tb = container.NewGridWithColumns(2)
-	// for _, t := range Tasks { // + сортировку и вынести в отд. ф.
-	// 	tb.Add(t.Box)
-	// }
+	TasksDone.Set(float64(d))
 
 	pbarInf := widget.NewProgressBarInfinite()
 	pbar := widget.NewProgressBarWithData(TasksDone)
 	pbar.Max = float64(len(Tasks))
-	pbar.Hide()
+	if len(Tasks) > 0 {
+		pbarInf.Hide()
+	} else {
+		pbar.Hide()
+	}
 
 	addTask := widget.NewButton("Новая задача", func() {
 		addTaskForm(tb, pbar)
@@ -190,30 +198,13 @@ func addTaskForm(tb *fyne.Container, pbar *widget.ProgressBar) {
 	w.Show()
 }
 
-func readTasksFromFile1() []taskType {
-	var tasks []taskType
-
-	// for i := 0; i <= 2; i++ {
-	// 	var temp taskType
-	// 	temp.Init("aaa", Impotant)
-	// 	tasks = append(tasks, temp)
-	// }
-	// for i := 0; i <= 2; i++ {
-	// 	var temp taskType
-	// 	temp.Init("bbb", ComputerStuff)
-	// 	tasks = append(tasks, temp)
-	// }
-
-	return tasks
-}
-
 func readTasksFromFile() ([]taskType, error) {
 	f, err := os.Open(taskJSON)
-	defer f.Close() // до или после проверки ошибки ? todo:
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
+	defer f.Close()
 
 	data, err := io.ReadAll(f)
 	if err != nil {

@@ -168,11 +168,11 @@ func goalForm() *fyne.Container {
 	if err != nil {
 		fmt.Printf("ошибка получения данных json: %v", err)
 	}
-	// init saved Goals
+
 	for _, saved := range savedGoals {
 		Goals = append(Goals, goalType{Name: ""})
 		Goals[len(Goals)-1].Init(saved.Name, saved.Description, saved.Max, saved.Value)
-		// fill box
+
 		GoalsBox.Add(Goals[len(Goals)-1].Box)
 	}
 
