@@ -48,6 +48,7 @@ func (t *taskType) Init(name string, priority taskPriority, done bool) {
 			// d -= 1
 			TasksDone.Set(td - 1)
 		}
+		writeTasksIntoFile(Tasks)
 	})
 	if done {
 		t.Check.Checked = true
@@ -78,7 +79,6 @@ func taskForm(t *container.AppTabs) *fyne.Container {
 	tb := container.NewGridWithColumns(2)
 	for _, saved := range savedTasks {
 		Tasks = append(Tasks, taskType{Name: ""})
-		fmt.Println(len(Tasks))
 		Tasks[len(Tasks)-1].Init(saved.Name, taskPriority(saved.Priority), saved.Done)
 		if saved.Done {
 			d++
@@ -106,11 +106,11 @@ func taskForm(t *container.AppTabs) *fyne.Container {
 			if t.Check.Checked { // если пункт отмечен, то удалить
 				Tasks = removeTask(Tasks, i) // удалить из среза
 				tb.Remove(t.Box)             // удалить с формы
-				// удалить из файла
 			} else {
 				i++
 			}
 		}
+		writeTasksIntoFile(Tasks) // переписать файл
 		pbar.Max = float64(len(Tasks))
 		pbar.Refresh()
 		TasksDone.Set(0)
@@ -118,12 +118,17 @@ func taskForm(t *container.AppTabs) *fyne.Container {
 
 	notesEntry := widget.NewMultiLineEntry()
 	notesEntry.Wrapping = fyne.TextWrapWord
+	s, _ := readTaskNotes()
+	notesEntry.Text = s
+	notesEntry.OnChanged = func(s string) {
+		writeTaskNotes(s)
+	}
 
-	testButton := widget.NewButton("Записть файла", func() { // debug
-		writeTasksIntoFile(Tasks)
-	})
+	// testButton := widget.NewButton("Записть файла", func() { // debug
+	//writeTasksIntoFile(Tasks)
+	// })
 
-	buttonBox := container.NewBorder(nil, nil, cleanTask, addTask, testButton)
+	buttonBox := container.NewBorder(nil, nil, cleanTask, addTask)
 	tasksBox := container.NewVBox(buttonBox, tb)
 	pb := container.NewVBox(pbarInf, pbar)
 
@@ -185,7 +190,7 @@ func addTaskForm(tb *fyne.Container, pbar *widget.ProgressBar) {
 		Tasks = append(Tasks, t)
 		tb.Add(t.Box)
 
-		// file
+		writeTasksIntoFile(Tasks)
 		pbar.Max++
 		pbar.Refresh()
 		w.Close()

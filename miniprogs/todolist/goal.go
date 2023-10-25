@@ -46,13 +46,13 @@ func (g *goalType) Init(name, description string, max, value float64) {
 	g.ProgressBar = widget.NewProgressBar()
 	g.ProgressBar.Max = max
 	g.ProgressBar.Value = value
-	// g.ProgressBar.Min = 0
 	g.ProgressBar.SetValue(value)
 
 	plusButton := widget.NewButton("  +  ", func() {
 		g.ProgressBar.Value++
 		g.Value = g.ProgressBar.Value // т.к. *widget.ProgressBar не сохраняется в файл
 		g.ProgressBar.Refresh()
+		writeGoalsIntoFile(Goals)
 	})
 	changeButton := widget.NewButton("  ...  ", func() {
 		g.ChangeGoalForm()
@@ -61,12 +61,13 @@ func (g *goalType) Init(name, description string, max, value float64) {
 	g.Box = container.NewBorder(nil, nil, textBox, buttonBox, g.ProgressBar)
 }
 
-// IncrementProgress прибавить прогресс
-func (g *goalType) IncrementProgress() {
-	g.Value = g.ProgressBar.Value
-	g.ProgressBar.Value++
-	g.ProgressBar.Refresh()
-}
+// // IncrementProgress прибавить прогресс
+// func (g *goalType) IncrementProgress() {
+// 	g.Value = g.ProgressBar.Value
+// 	g.ProgressBar.Value++
+// 	g.ProgressBar.Refresh()
+// 	writeGoalsIntoFile(Goals)
+// }
 
 // ChangeGoalForm форма для изменения парамметров цели
 func (g *goalType) ChangeGoalForm() {
@@ -83,6 +84,7 @@ func (g *goalType) ChangeGoalForm() {
 	descriptionEntry := widget.NewEntry()
 	descriptionEntry.OnChanged = func(s string) {
 		g.Description = s
+		writeGoalsIntoFile(Goals)
 	}
 	if g.Description == "" {
 		descriptionEntry.SetPlaceHolder("Введите примечание...")
@@ -97,6 +99,7 @@ func (g *goalType) ChangeGoalForm() {
 			g.ProgressBar.Value = float64(v)
 			g.Value = g.ProgressBar.Value
 			g.ProgressBar.Refresh()
+			writeGoalsIntoFile(Goals)
 		}
 	}
 	valueEntry.SetPlaceHolder(fmt.Sprintf("%v", g.ProgressBar.Value))
@@ -104,6 +107,8 @@ func (g *goalType) ChangeGoalForm() {
 		widget.NewLabel(fmt.Sprintf("(из %v)", g.ProgressBar.Max)), valueEntry)
 
 	doneButton := widget.NewButton("Завершить", func() {
+		// сделать не активной пока не будет 100%?
+		// добавить файл завершенных проектов?
 		if g.Max != g.ProgressBar.Value {
 
 			msg := fmt.Sprintf("Завершение цели \"%s\"", g.Name)
@@ -112,7 +117,7 @@ func (g *goalType) ChangeGoalForm() {
 				if ok {
 					Goals = removeGoals(Goals, g.Name)
 					GoalsBox.Remove(g.Box)
-					// сохранить в отдельный файл завершенные проекты
+					writeGoalsIntoFile(Goals)
 				}
 			}, w)
 			d.SetDismissText("Отмена")
@@ -123,18 +128,19 @@ func (g *goalType) ChangeGoalForm() {
 	deleteButton := widget.NewButton("Удалить", func() {
 		msg := fmt.Sprintf("Удаление цели \"%s\"", g.Name)
 		d := dialog.NewConfirm(msg, "Точно удалить?", func(ok bool) {
-			w.Close()
 			if ok {
 				Goals = removeGoals(Goals, g.Name)
 				GoalsBox.Remove(g.Box)
-				// удалить из файла
+				writeGoalsIntoFile(Goals)
 			}
+			w.Close()
 		}, w)
 		d.SetDismissText("Отмена")
 		d.SetConfirmText("Да")
 		d.Show()
 	})
 	okButton := widget.NewButton("Ok", func() {
+		writeGoalsIntoFile(Goals)
 		w.Close()
 	})
 	buttonBox := container.NewHBox(deleteButton, doneButton, layout.NewSpacer(), okButton)
@@ -188,10 +194,10 @@ func goalForm() *fyne.Container {
 		writeGoalNotes(s)
 	}
 
-	testButton := widget.NewButton("Записть файла", func() { // debug
-		writeGoalsIntoFile(Goals)
-	})
-	button := container.NewBorder(nil, nil, testButton, addGoalButton)
+	// testButton := widget.NewButton("Записть файла", func() { // debug
+	// 	writeGoalsIntoFile(Goals)
+	// })
+	button := container.NewBorder(nil, nil, nil, addGoalButton)
 
 	box := container.NewVBox(GoalsBox, button)
 
@@ -274,6 +280,7 @@ func newGoalForm(goalsBox *fyne.Container) {
 		g.Init(name, description, float64(max), 0)
 		Goals = append(Goals, g)
 		goalsBox.Add(g.Box)
+		writeGoalsIntoFile(Goals)
 		w.Close()
 	})
 	buttonBox := container.New(layout.NewGridWrapLayout(fyne.NewSize(80, 30)), buttonOk) // size
