@@ -1,22 +1,17 @@
 [
 	{
-		"Name": "22",
-		"Done": true,
+		"Name": "joga",
+		"Done": false,
 		"Priority": 0
 	},
 	{
-		"Name": "11",
+		"Name": "git cmd",
 		"Done": false,
+		"Priority": 1
+	},
+	{
+		"Name": "1 test",
+		"Done": true,
 		"Priority": 2
-	},
-	{
-		"Name": "33",
-		"Done": true,
-		"Priority": 0
-	},
-	{
-		"Name": "55",
-		"Done": false,
-		"Priority": 4
 	}
 ]
