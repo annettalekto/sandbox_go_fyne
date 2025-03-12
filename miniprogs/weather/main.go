@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"image/color"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -39,7 +39,7 @@ func GetData(ch chan string) {
 	url := "https://pogoda1.ru/penza/"
 
 	go func() {
-		sec := time.NewTicker(1 * time.Second)
+		sec := time.NewTicker(1000 * time.Millisecond)
 		for range sec.C {
 
 			resp, err := http.Get(url)
@@ -47,7 +47,7 @@ func GetData(ch chan string) {
 				fmt.Fprintf(os.Stderr, "fetch: %v\n", err)
 				os.Exit(1)
 			}
-			info, err = ioutil.ReadAll(resp.Body)
+			info, err = io.ReadAll(resp.Body)
 			resp.Body.Close() // для предотвращения утечки ресурсов
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "fetch: reading %s: %v\n", url, err)
@@ -72,29 +72,21 @@ func GetData(ch chan string) {
 
 			sl := strings.Split(string(info), "\n")
 			for i, s := range sl {
-				if strings.Contains(strings.ToLower(s), "погода в пензе на сегодня") {
+				if strings.Contains(strings.ToLower(s), "погода в пензе") {
 					mydata.City = "Пенза"
-				} else if strings.Contains(s, "weather-date-select-day active") { //<a href="/penza/25-05-2023/#main" class="weather-date-select-day active">
-					d := strings.ReplaceAll(s, "\"", "")
-					d = strings.TrimLeft(d, "<a href=/penza/")
-					d = strings.TrimRight(d, "/#main class=weather-date-select-day active>")
-					mydata.Date = d
+				} else if strings.Contains(s, "weather-date-select-day") { //<a href="/penza/25-05-2023/#main" class="weather-date-select-day active">
+					mydata.Date = getData(s)
 				} else if strings.Contains(s, "weather-now-temp") { //<div class="weather-now-temp">+25&deg;</div>
-					d := strings.ReplaceAll(s, "\"", "")
-					d = strings.TrimLeft(d, "<div class=weather-now-temp>")
-					d = strings.TrimRight(d, "&deg;</div>")
+					d := getData(s)
+					d = strings.Trim(d, "&deg;")
 					mydata.Temperature = d
 				} else if mydata.Wind == "" && strings.Contains(s, "<span class=\"wind-amount\">") { // <span class="wind-amount">Северо-восточный, 1 м/с</span>
-					d := strings.ReplaceAll(s, "\"", "")
-					d = strings.TrimLeft(d, "<span class=wind-amount>")
-					d = strings.TrimRight(d, "</span>")
-					mydata.Wind = d
-				} else if strings.Contains(s, "<span class=\"param\">По ощущению</span>") {
+					mydata.Wind = getData(s)
+				} else if strings.Contains(s, "По ощущению") {
 					if len(sl) > i+1 {
-						d := sl[i+1] // <span class="value">+19&deg;</span>
-						d = strings.ReplaceAll(d, "\"", "")
-						d = strings.TrimLeft(d, "<span class=value>")
-						d = strings.TrimRight(d, "<&deg;/span>")
+						d := sl[i+1]
+						d = getData(d)
+						d = strings.Trim(d, "&deg;")
 						mydata.FeelsLike = d
 					}
 				}
@@ -102,6 +94,25 @@ func GetData(ch chan string) {
 			ch <- mydata.Temperature
 		}
 	}()
+}
+
+func getData(in string) string {
+	out := in
+	q1 := strings.Index(out, "<")
+	q2 := strings.Index(out, ">")
+	if q1 == -1 || q2 == -1 {
+		return ""
+	}
+	out = out[q2+1:]
+
+	q1 = strings.Index(out, "<")
+	q2 = strings.Index(out, ">")
+	if q1 == -1 || q2 == -1 {
+		return ""
+	}
+	out = out[:q1]
+
+	return out
 }
 
 func CreateForm(ch chan string) {
@@ -137,7 +148,7 @@ func CreateForm(ch chan string) {
 	labelWind.TextStyle.Italic = true
 
 	go func() {
-		sec := time.NewTicker(1 * time.Second)
+		sec := time.NewTicker(1000 * time.Millisecond)
 		for range sec.C {
 			t, opend := <-temp
 			if !opend {
@@ -148,7 +159,7 @@ func CreateForm(ch chan string) {
 				labelCity.Refresh()
 			}
 
-			labelFeels.Text = "По ощущению " + mydata.FeelsLike + "°"
+			labelFeels.Text = "По ощущению: " + mydata.FeelsLike + "°"
 			labelFeels.Refresh()
 
 			labelWind.Text = mydata.Wind
